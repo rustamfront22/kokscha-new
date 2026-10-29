@@ -1,0 +1,122 @@
+// Дизайн-токены Ko'kcha eshiklar.
+// Палитра: Warm Minimalism. Латунный акцент взят из логотипа (#8A7B3A),
+// дуб и орех — из исходной концепции, оттенки слегка уточнены под контраст WCAG.
+
+:root {
+  /* Палитра */
+  --c-white: #ffffff;
+  --c-ivory: #f5f1e9;
+  --c-linen: #ede6da;
+  --c-sand: #e5d8c5;
+  --c-oak: #b18a62;
+  --c-oak-deep: #94714b; // дуб для крупных заголовков
+  --c-oak-ink: #7a5c3b; // дуб для мелкого текста: контраст 5.4:1 на ivory
+  --c-brass: #8a7b3a;
+  --c-walnut: #42382f;
+  --c-graphite: #242320;
+  --c-ink-soft: #3a352f;
+  --c-muted: #6b6157;
+  --c-line: rgba(66, 56, 47, 0.14);
+  --c-line-strong: rgba(66, 56, 47, 0.28);
+  --c-error: #a23b2a;
+  --c-success: #3f6b47;
+
+  /* Семантические роли */
+  --bg: var(--c-ivory);
+  --surface: var(--c-white);
+  --surface-alt: var(--c-linen);
+  --surface-dark: var(--c-graphite);
+  --text: var(--c-graphite);
+  --text-muted: var(--c-muted);
+  --text-on-dark: #f3eee6;
+  --text-on-dark-muted: rgba(243, 238, 230, 0.68);
+  --border: var(--c-line);
+  --border-strong: var(--c-line-strong);
+  --accent: var(--c-oak);
+  --accent-ink: var(--c-oak-ink);
+  --focus-ring: var(--c-oak);
+
+  /* Типографика */
+  --font-display: "Cormorant Garamond", "Cormorant", Georgia, "Times New Roman",
+    "Songti SC", "Noto Serif SC", serif;
+  --font-sans: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto,
+    "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+
+  --fs-display: clamp(2.75rem, 1.6rem + 4.6vw, 5.75rem);
+  --fs-h1: clamp(2.375rem, 1.6rem + 3vw, 4.25rem);
+  --fs-h2: clamp(2rem, 1.45rem + 2.1vw, 3.25rem);
+  --fs-h3: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+  --fs-h4: 1.125rem;
+  --fs-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --fs-body: 1rem;
+  --fs-sm: 0.875rem;
+  --fs-xs: 0.75rem;
+
+  --lh-tight: 1.05;
+  --lh-heading: 1.12;
+  --lh-body: 1.65;
+  --tracking-eyebrow: 0.18em;
+
+  /* Отступы (шкала 4px) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+  --section-y: clamp(4rem, 2.5rem + 6vw, 8rem);
+
+  /* Сетка и контейнеры */
+  --container: 1320px;
+  --container-narrow: 880px;
+  --gutter: clamp(1rem, 0.4rem + 2.6vw, 2.5rem);
+  --header-h: 76px;
+
+  /* Формы */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-pill: 999px;
+  --control-h: 52px;
+  --control-h-sm: 42px;
+
+  /* Тени — мягкие и тёплые */
+  --shadow-sm: 0 1px 2px rgba(36, 35, 32, 0.06);
+  --shadow: 0 12px 32px -12px rgba(36, 35, 32, 0.18);
+  --shadow-lg: 0 30px 70px -24px rgba(36, 35, 32, 0.32);
+
+  /* Слои */
+  --z-raised: 2;
+  --z-sticky: 50;
+  --z-header: 100;
+  --z-fab: 150;
+  --z-drawer: 300;
+  --z-dropdown: 350;
+  --z-modal: 400;
+
+  /* Движение */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 160ms;
+  --dur: 260ms;
+  --dur-slow: 700ms;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --header-h: 64px;
+    --control-h: 50px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur: 0ms;
+    --dur-slow: 0ms;
+  }
+}

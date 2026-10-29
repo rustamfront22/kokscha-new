@@ -1,0 +1,237 @@
+@use "mixins" as *;
+
+/* ---------- Контейнеры ---------- */
+.container {
+  width: 100%;
+  max-width: calc(var(--container) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.container--narrow {
+  max-width: calc(var(--container-narrow) + var(--gutter) * 2);
+}
+
+/* ---------- Секции ---------- */
+.section {
+  padding-block: var(--section-y);
+}
+
+.section--tight {
+  padding-block: calc(var(--section-y) * 0.6);
+}
+
+.section--flush-top {
+  padding-top: 0;
+}
+
+.section--alt {
+  background: var(--surface-alt);
+}
+
+.section--white {
+  background: var(--surface);
+}
+
+.section--dark {
+  background: var(--surface-dark);
+  color: var(--text-on-dark);
+
+  .eyebrow {
+    color: var(--c-sand);
+  }
+
+  .lead,
+  .text-muted {
+    color: var(--text-on-dark-muted);
+  }
+}
+
+.section-head {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  max-width: 760px;
+
+  &--center {
+    margin-inline: auto;
+    text-align: center;
+    justify-items: center;
+  }
+
+  &--split {
+    max-width: none;
+
+    @include up(lg) {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: var(--space-6);
+    }
+  }
+}
+
+/* ---------- Типографика ---------- */
+.display,
+.h1,
+.h2,
+.h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.display {
+  font-size: var(--fs-display);
+  line-height: var(--lh-tight);
+}
+
+.h1 {
+  font-size: var(--fs-h1);
+  line-height: var(--lh-tight);
+}
+
+.h2 {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-heading);
+}
+
+.h3 {
+  font-size: var(--fs-h3);
+  line-height: 1.2;
+}
+
+.h4 {
+  font-size: var(--fs-h4);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.display em,
+.h1 em,
+.h2 em {
+  font-style: italic;
+  color: var(--c-oak-deep); // крупный текст: контраст ≥ 3:1 на ivory
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--accent-ink);
+
+  &::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  &--plain::before {
+    display: none;
+  }
+}
+
+.lead {
+  font-size: var(--fs-lead);
+  line-height: 1.6;
+  color: var(--text-muted);
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.prose {
+  max-width: 68ch;
+  color: var(--text-muted);
+
+  p + p {
+    margin-top: var(--space-4);
+  }
+}
+
+/* ---------- Списки с линиями ---------- */
+.rule-list {
+  display: grid;
+  border-top: 1px solid var(--border);
+
+  > li {
+    display: flex;
+    gap: var(--space-4);
+    align-items: baseline;
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  &__mark {
+    flex: 0 0 auto;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    color: var(--accent-ink);
+    min-width: 2ch;
+  }
+}
+
+.section--dark .rule-list {
+  border-color: rgba(243, 238, 230, 0.14);
+
+  > li {
+    border-color: rgba(243, 238, 230, 0.14);
+  }
+
+  .rule-list__mark {
+    color: var(--c-sand);
+  }
+}
+
+/* ---------- Медиа ---------- */
+.media-frame {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-alt);
+
+  > img,
+  > video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.ratio-4x5 {
+  aspect-ratio: 4 / 5;
+}
+.ratio-3x4 {
+  aspect-ratio: 3 / 4;
+}
+.ratio-16x10 {
+  aspect-ratio: 16 / 10;
+}
+.ratio-9x16 {
+  aspect-ratio: 9 / 16;
+}
+
+/* Китайский: у иероглифов нет настоящего курсива, а ограничение в ch даёт слишком узкие строки */
+html[lang^="zh"] {
+  .display em,
+  .h1 em,
+  .h2 em {
+    font-style: normal;
+  }
+
+  .display,
+  .h1,
+  .h2,
+  .h3 {
+    letter-spacing: 0.02em;
+  }
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "English",
+    "code": "en",
+    "file": "en"
+  },
+  {
+    "code": "ru",
+    "name": "Russian",
+    "file": "ru"
+  },
+  {
+    "code": "zh",
+    "name": "China",
+    "file": "zh"
+  },
+  {
+    "code": "uz",
+    "name": "O`zbekcha",
+    "file": "uz"
+  }
+]

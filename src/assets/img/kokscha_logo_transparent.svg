@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="256" viewBox="0 0 512 256">
+  <!-- Door icon -->
+  <g transform="translate(58,54)" fill="none" stroke="#8A7B3A" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M42 0 L12 10 L12 138 L42 150"/>
+    <path d="M70 12 L70 140"/>
+    <path d="M70 12 L128 28 L128 162 L70 140"/>
+    <path d="M22 26 L22 48"/>
+    <path d="M22 96 L22 118"/>
+    <circle cx="112" cy="96" r="3.8" fill="#8A7B3A" stroke="none"/>
+  </g>
+
+  <!-- Text -->
+  <g transform="translate(190,78)">
+    <text x="0" y="0" font-size="52" font-weight="700" font-family="Georgia, 'Times New Roman', serif" fill="#111111">Ko’kscha</text>
+    <text x="4" y="46" font-size="22" font-weight="700" letter-spacing="2.2"
+          font-family="Arial, Helvetica, sans-serif" fill="#111111">EShIKLAR</text>
+    <text x="4" y="70" font-size="16" font-weight="600" letter-spacing="1.6"
+          font-family="Arial, Helvetica, sans-serif" fill="#111111">FABRIKASI</text>
+  </g>
+</svg>
