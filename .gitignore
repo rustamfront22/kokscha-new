@@ -28,3 +28,6 @@ dist-ssr
 src/i18n/server
 # Локальные настройки Claude Code
 .claude/
+
+.vercel
+.env*
