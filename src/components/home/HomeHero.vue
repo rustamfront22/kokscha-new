@@ -49,10 +49,11 @@
           <span class="hero__floor" aria-hidden="true" />
           <div class="hero__opening">
             <Transition name="door" mode="out-in">
-              <div v-if="active" :key="active.id" class="hero__door">
-                <img :src="active.thumbnail" :alt="doorAlt(active)" decoding="async" />
+              <div v-if="active" :key="active.id" class="hero__door" :class="{ 'is-loaded': loadedSrc === active.thumbnail }">
+                <img :src="active.thumbnail" :alt="doorAlt(active)" decoding="async" @load="loadedSrc = active.thumbnail" />
               </div>
-              <div v-else class="hero__door hero__door--loading skeleton" />
+              <!-- Пока каталог грузится — силуэт двери в тон проёма, а не тёмный блок -->
+              <div v-else class="hero__door hero__door--loading" aria-hidden="true"><span /></div>
             </Transition>
           </div>
           <span class="hero__scale label-mono" aria-hidden="true">{{ active?.size || "2.40 x 0.90" }}</span>
@@ -135,6 +136,8 @@ const picks = computed(() =>
     .filter(Boolean),
 );
 const activeId = ref(null);
+// Фото проявляется после загрузки, чтобы не было «пустого» проёма и рывка
+const loadedSrc = ref(null);
 const active = computed(() => store.findById(activeId.value) || picks.value[0] || null);
 
 const doorAlt = (p) => [`${t("Model")} ${p.title}`, typeLabel(p.type), colorLabel(p.color)].filter(Boolean).join(", ");
@@ -474,8 +477,60 @@ onBeforeUnmount(() => {
   }
 }
 
+.hero__door img {
+  opacity: 0;
+  transition: opacity 360ms var(--ease);
+}
+
+.hero__door.is-loaded img {
+  opacity: 1;
+}
+
+// Силуэт двери: наличник и филёнка тонкими линиями, по ним проходит мягкий блик
 .hero__door--loading {
-  border-radius: 4px;
+  display: grid;
+  place-items: end center;
+
+  span {
+    position: relative;
+    display: block;
+    height: 100%;
+    aspect-ratio: 0.44;
+    max-width: 100%;
+    overflow: hidden;
+    border: 1px solid rgba(160, 138, 74, 0.35);
+    border-bottom: 0;
+    background: linear-gradient(180deg, rgba(160, 138, 74, 0.06), rgba(160, 138, 74, 0.12));
+
+    // филёнка
+    &::before {
+      content: "";
+      position: absolute;
+      top: 12%;
+      right: 18%;
+      bottom: 10%;
+      left: 18%;
+      border: 1px solid rgba(160, 138, 74, 0.25);
+    }
+
+    // блик
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -60%;
+      width: 60%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+      animation: hero-shimmer 1.6s var(--ease) infinite;
+    }
+  }
+}
+
+@keyframes hero-shimmer {
+  to {
+    left: 110%;
+  }
 }
 
 .hero__scale {
@@ -648,6 +703,10 @@ onBeforeUnmount(() => {
   .hero__lead,
   .hero__actions,
   .hero__stage {
+    animation: none;
+  }
+
+  .hero__door--loading span::after {
     animation: none;
   }
 

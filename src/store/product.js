@@ -34,15 +34,62 @@ export const mapDoorToProduct = (item = {}) => {
   };
 };
 
+// Кэш каталога на время сессии: при перезагрузке страницы двери показываются сразу,
+// а свежий список тихо подтягивается в фоне. Хранятся только публичные данные из /doors.
+const CACHE_KEY = "kokcha:doors";
+const CACHE_TTL = 30 * 60 * 1000;
+
+function readCache() {
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "null");
+    if (cached && Array.isArray(cached.list) && cached.list.length && Date.now() - cached.at < CACHE_TTL) {
+      return cached.list;
+    }
+  } catch {
+    // нет доступа к sessionStorage или битые данные — просто грузим заново
+  }
+  return null;
+}
+
+function writeCache(list) {
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), list }));
+  } catch {
+    // квота / приватный режим — работаем без кэша
+  }
+}
+
 export const useProductStore = defineStore("product", () => {
-  const products = ref([]);
-  const status = ref("idle"); // idle | loading | success | error
+  const cached = readCache();
+  const products = ref(cached ? cached.map(mapDoorToProduct) : []);
+  const status = ref(cached ? "success" : "idle"); // idle | loading | success | error
   const error = ref(null);
   let pending = null;
+  let revalidated = !cached;
 
   // Каталог небольшой (≈60 дверей) и отдаётся целиком, поэтому грузим его один раз
   // за сессию и дальше фильтруем на клиенте. Раньше каждый компонент запрашивал /doors заново.
   const fetchProducts = async ({ force = false } = {}) => {
+    // Данные из кэша сессии уже на экране — один раз обновляем их в фоне, без скелетонов
+    if (status.value === "success" && !force && !revalidated) {
+      revalidated = true;
+      if (!pending) {
+        pending = api
+          .get("/doors")
+          .then(({ data }) => {
+            const list = Array.isArray(data) ? data : data?.doors || [];
+            if (list.length) {
+              products.value = list.map(mapDoorToProduct);
+              writeCache(list);
+            }
+          })
+          .catch(() => {})
+          .finally(() => {
+            pending = null;
+          });
+      }
+      return products.value;
+    }
     if (status.value === "success" && !force) return products.value;
     if (pending) return pending;
 
@@ -55,6 +102,8 @@ export const useProductStore = defineStore("product", () => {
         const list = Array.isArray(data) ? data : data?.doors || [];
         products.value = list.map(mapDoorToProduct);
         status.value = "success";
+        revalidated = true;
+        writeCache(list);
         return products.value;
       })
       .catch((e) => {
