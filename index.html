@@ -57,6 +57,8 @@
         cursor: pointer;
         -webkit-user-select: none;
         user-select: none;
+        perspective: 1600px;
+        perspective-origin: 50% 50%;
       }
       .intro-off .intro {
         display: none;
@@ -66,22 +68,88 @@
         overflow: hidden;
       }
 
-      /* Две «створки» фона — на выходе расходятся, как двери */
+      /* Дверь: на телефоне одна створка (петли слева), на широком экране — две.
+         На выходе створки распахиваются внутрь, от зрителя, а из проёма идёт тёплый свет. */
+      .intro__glow {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: radial-gradient(ellipse 60% 75% at 50% 50%, rgba(250, 236, 208, 0.95) 0%, rgba(212, 174, 126, 0.5) 38%, rgba(22, 21, 19, 0) 75%);
+        opacity: 0;
+        pointer-events: none;
+      }
       .intro__leaf {
         position: absolute;
         top: 0;
         bottom: 0;
-        width: 50.5%;
-        background: radial-gradient(ellipse 90% 70% at 100% 50%, #24211d 0%, #161513 70%);
-        transition: transform 1s cubic-bezier(0.77, 0, 0.18, 1);
+        width: 50.2%;
+        overflow: hidden;
+        background:
+          linear-gradient(90deg, rgba(0, 0, 0, 0.18), rgba(255, 255, 255, 0.015) 50%, rgba(0, 0, 0, 0.18)),
+          radial-gradient(ellipse 120% 70% at 50% 40%, #25221e 0%, #161513 75%);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        transition: transform 1.7s cubic-bezier(0.5, 0, 0.2, 1);
+        will-change: transform;
+      }
+      /* филёнки створки — тонкие латунные рамки */
+      .intro__leaf::before,
+      .intro__leaf::after {
+        content: "";
+        position: absolute;
+        left: 12%;
+        right: 12%;
+        border: 1px solid rgba(212, 174, 126, 0.12);
+        border-radius: 2px;
+      }
+      /* филёнки сверху и снизу, середина свободна под логотип */
+      .intro__leaf::before {
+        top: 6%;
+        height: 26%;
+      }
+      .intro__leaf::after {
+        top: 68%;
+        bottom: 6%;
       }
       .intro__leaf--l {
         left: 0;
+        transform-origin: 0 50%;
       }
       .intro__leaf--r {
         right: 0;
-        transform-origin: right;
-        background: radial-gradient(ellipse 90% 70% at 0% 50%, #24211d 0%, #161513 70%);
+        transform-origin: 100% 50%;
+      }
+      /* тень, которая сгущается по мере поворота створки */
+      .intro__shade {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+        background: #0b0a09;
+        opacity: 0;
+        transition: opacity 1.7s ease;
+      }
+      .intro__pull {
+        position: absolute;
+        top: 50%;
+        width: 4px;
+        height: 120px;
+        margin-top: -60px;
+        border-radius: 3px;
+        background: linear-gradient(90deg, #8a6c3f, #e3c48e 45%, #9b7a47);
+        box-shadow: 0 0 18px rgba(212, 174, 126, 0.25);
+        opacity: 0;
+        animation: intro-pull 0.6s ease 1.3s forwards;
+      }
+      .intro__leaf--l .intro__pull {
+        right: 5%;
+      }
+      .intro__leaf--r .intro__pull {
+        left: 5%;
       }
       .intro__seam {
         position: absolute;
@@ -89,10 +157,44 @@
         bottom: 0;
         left: 50%;
         width: 1px;
-        background: linear-gradient(180deg, transparent, rgba(212, 174, 126, 0.7), transparent);
-        transform: scaleY(0);
+        background: linear-gradient(180deg, transparent, rgba(212, 174, 126, 0.45), transparent);
         opacity: 0;
-        transition: opacity 0.4s ease;
+        animation: intro-fade 0.8s ease 1.1s forwards;
+      }
+
+      @media (max-width: 767px) {
+        .intro__leaf--l {
+          width: 100%;
+        }
+        .intro__leaf--r,
+        .intro__seam {
+          display: none;
+        }
+        .intro__leaf::before,
+        .intro__leaf::after {
+          left: 14%;
+          right: 14%;
+        }
+        .intro__leaf--l .intro__pull {
+          right: 9%;
+          width: 34px;
+          height: 4px;
+          margin-top: 0;
+          border-radius: 2px;
+          box-shadow: 0 0 12px rgba(212, 174, 126, 0.3);
+          transform-origin: 100% 50%;
+        }
+        /* розетка ручки */
+        .intro__leaf--l .intro__pull::before {
+          content: "";
+          position: absolute;
+          right: -2px;
+          top: -8px;
+          width: 6px;
+          height: 20px;
+          border-radius: 3px;
+          background: linear-gradient(90deg, #8a6c3f, #d8b67f);
+        }
       }
 
       .intro__content {
@@ -196,18 +298,29 @@
       }
       .intro.is-leaving .intro__content {
         opacity: 0;
-        transform: scale(1.06);
+        transform: scale(0.96);
+      }
+      /* ручка поворачивается — дверь «щёлкает» и распахивается */
+      .intro.is-leaving .intro__pull {
+        animation: intro-handle 0.35s ease forwards;
       }
       .intro.is-leaving .intro__seam {
-        animation: intro-seam 1.1s ease forwards;
+        animation: intro-seam 0.9s ease 0.25s forwards;
+      }
+      .intro.is-leaving .intro__glow {
+        animation: intro-glow 1.9s ease 0.3s forwards;
       }
       .intro.is-leaving .intro__leaf--l {
-        transform: translateX(-101%);
-        transition-delay: 0.25s;
+        transform: rotateY(96deg);
+        transition-delay: 0.32s;
       }
       .intro.is-leaving .intro__leaf--r {
-        transform: translateX(101%);
-        transition-delay: 0.25s;
+        transform: rotateY(-96deg);
+        transition-delay: 0.32s;
+      }
+      .intro.is-leaving .intro__shade {
+        opacity: 0.85;
+        transition-delay: 0.32s;
       }
 
       @keyframes intro-draw {
@@ -238,13 +351,43 @@
         }
       }
       @keyframes intro-seam {
-        25% {
+        from {
           opacity: 1;
-          transform: scaleY(1);
+        }
+        30% {
+          opacity: 1;
+          width: 6px;
+          margin-left: -3px;
+          background: linear-gradient(180deg, transparent, rgba(243, 227, 196, 0.95), transparent);
+          box-shadow: 0 0 40px 10px rgba(243, 227, 196, 0.35);
         }
         to {
           opacity: 0;
-          transform: scaleY(1);
+        }
+      }
+      @keyframes intro-glow {
+        25% {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+      @keyframes intro-pull {
+        to {
+          opacity: 0.85;
+        }
+      }
+      @keyframes intro-handle {
+        from {
+          opacity: 0.85;
+        }
+        50% {
+          transform: rotate(-4deg) translateY(4px);
+        }
+        to {
+          opacity: 0.85;
+          transform: none;
         }
       }
       @keyframes intro-line {
@@ -274,8 +417,9 @@
   </head>
   <body>
     <div class="intro" id="intro" aria-hidden="true">
-      <div class="intro__leaf intro__leaf--l"></div>
-      <div class="intro__leaf intro__leaf--r"></div>
+      <div class="intro__glow"></div>
+      <div class="intro__leaf intro__leaf--l"><span class="intro__shade"></span><span class="intro__pull"></span></div>
+      <div class="intro__leaf intro__leaf--r"><span class="intro__shade"></span><span class="intro__pull"></span></div>
       <div class="intro__seam"></div>
       <div class="intro__content">
         <span class="intro__halo"></span>
@@ -325,7 +469,7 @@
           setTimeout(function () {
             el.remove();
             root.classList.add("intro-off");
-          }, 1350);
+          }, 2150);
           removeEventListener("keydown", finish);
         }
 
