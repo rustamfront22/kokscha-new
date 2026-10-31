@@ -381,5 +381,12 @@
   "Ready to choose": "O‘z eshigingizni",
   "your door?": "tanlashga tayyormisiz?",
   "Your selection": "Sizning tanlovingiz",
-  "Mention the model number when our manager calls you.": "Menejer qo‘ng‘iroq qilganda model raqamini ayting."
+  "Mention the model number when our manager calls you.": "Menejer qo‘ng‘iroq qilganda model raqamini ayting.",
+  "Share model": "Modelni ulashish",
+  "Link copied": "Havola nusxalandi",
+  "Other models": "Boshqa modellar",
+  "Previous model": "Oldingi model",
+  "Next model": "Keyingi model",
+  "Search by model number or colour": "Model raqami yoki rang bo‘yicha qidirish",
+  "Model number or colour": "Model raqami yoki rang"
 }

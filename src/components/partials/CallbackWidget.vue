@@ -379,6 +379,11 @@ onUnmounted(() => {
   color: var(--c-ivory);
   box-shadow: var(--shadow);
   transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
+
+  @media (max-width: 575px) {
+    width: 52px;
+    height: 52px;
+  }
 }
 
 .callback-fab:hover {

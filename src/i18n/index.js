@@ -11,10 +11,22 @@ export async function loadLocales(locales) {
     }, Promise.resolve({}));
 }
 
+// Язык при первом визите: из настроек браузера, если сайт его поддерживает, иначе русский
+// (основная аудитория — Ташкент). Явный выбор пользователя хранится в cookie и важнее.
+const SUPPORTED = ['ru', 'uz', 'en', 'zh'];
+function detectLocale() {
+    const list = (typeof navigator !== 'undefined' && (navigator.languages || [navigator.language])) || [];
+    for (const lang of list) {
+        const code = String(lang || '').toLowerCase().split('-')[0];
+        if (SUPPORTED.includes(code)) return code;
+    }
+    return 'ru';
+}
+
 const i18n = createI18n({
     allowComposition: true,
     legacy: false,
-    locale: cookies.get('locale') || 'en',
+    locale: cookies.get('locale') || detectLocale(),
     fallbackLocale: 'en'
 });
 

@@ -22,7 +22,7 @@
       </StateMessage>
     </div>
 
-    <CurrentCard v-else :data="product" :related="related" />
+    <CurrentCard v-else :data="product" :related="related" :prev="neighbours.prev" :next="neighbours.next" />
   </div>
 </template>
 
@@ -34,6 +34,8 @@ import CurrentCard from "../components/views/product/CurrentCard.vue";
 import StateMessage from "@/components/ui/StateMessage.vue";
 import { useProductStore } from "../store/product";
 import { setPageMeta } from "@/composables/usePageMeta";
+import { typeLabel, styleLabel } from "@/utils/crmLabels";
+import { colorLabel } from "@/utils/doorColors";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -44,13 +46,21 @@ const store = useProductStore();
 const product = computed(() => (store.status === "success" ? store.findById(route.params.id) : null));
 const related = computed(() => store.related(product.value, 10));
 
+// Соседние модели в порядке каталога — для навигации «предыдущая / следующая».
+const neighbours = computed(() => {
+  const list = store.products;
+  const i = product.value ? list.findIndex((p) => p.id === product.value.id) : -1;
+  if (i < 0) return { prev: null, next: null };
+  return { prev: list[i - 1] || null, next: list[i + 1] || null };
+});
+
 watch(
   [product, () => t("Model"), () => store.status],
   ([p, modelLabel]) => {
     if (p) {
       setPageMeta({
-        title: `${modelLabel} ${p.title}${p.type ? ` · ${p.type}` : ""}`,
-        description: p.description || [p.type, p.style, p.color].filter(Boolean).join(", "),
+        title: `${modelLabel} ${p.title}${p.type ? ` · ${typeLabel(p.type)}` : ""}`,
+        description: p.description || [typeLabel(p.type), styleLabel(p.style), colorLabel(p.color)].filter(Boolean).join(", "),
       });
     } else if (store.status === "success") {
       setPageMeta({ title: t("Model not found") });

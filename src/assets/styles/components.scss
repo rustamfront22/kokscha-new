@@ -425,6 +425,13 @@
     opacity: 0.5;
   }
 
+  // Ссылки крошек — с увеличенной зоной касания (без сдвига вёрстки)
+  a {
+    display: inline-block;
+    padding-block: 10px;
+    margin-block: -10px;
+  }
+
   a:hover {
     color: var(--text);
   }

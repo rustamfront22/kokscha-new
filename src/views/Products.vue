@@ -6,7 +6,7 @@
         <div class="catalog__title-row">
           <div class="catalog__title">
             <p class="eyebrow">{{ t("Catalog") }} · Ko‘kcha eshiklar</p>
-            <h1 class="display">{{ activeCategory || t("Catalog") }}</h1>
+            <h1 class="display">{{ activeCategory ? typeLabel(activeCategory) : t("Catalog") }}</h1>
             <p class="lead">{{ t("Choose the perfect door for your project.") }}</p>
           </div>
           <p v-if="store.status === 'success'" class="catalog__found" aria-live="polite">
@@ -25,11 +25,24 @@
           @select="selectCategory"
         />
         <div class="catalog__filters">
+          <label class="catalog__search">
+            <span class="sr-only">{{ t("Search by model number or colour") }}</span>
+            <UiIcon name="search" :size="16" class="catalog__search-icon" />
+            <input
+              v-model.trim="search"
+              class="input"
+              type="search"
+              inputmode="search"
+              enterkeyhint="search"
+              autocomplete="off"
+              :placeholder="t('Model number or colour')"
+            />
+          </label>
           <label class="catalog__style">
             <span class="sr-only">{{ t("Style") }}</span>
             <select class="select" :value="activeStyle || ''" :disabled="!styleOptions.length" @change="selectStyle($event.target.value)">
               <option value="">{{ t("All styles") }}</option>
-              <option v-for="style in styleOptions" :key="style" :value="style">{{ style }}</option>
+              <option v-for="style in styleOptions" :key="style" :value="style">{{ styleLabel(style) }}</option>
             </select>
           </label>
           <button v-if="hasFilters" class="btn btn--ghost btn--sm" type="button" @click="resetFilters">
@@ -78,7 +91,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import Category from "../components/views/product/Category.vue";
@@ -88,6 +101,7 @@ import StateMessage from "@/components/ui/StateMessage.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import CtaBand from "@/components/sections/CtaBand.vue";
 import { useProductStore } from "../store/product";
+import { typeLabel, styleLabel, colorText } from "@/utils/crmLabels";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -106,11 +120,38 @@ const inCategory = computed(() =>
 
 const styleOptions = computed(() => [...new Set(inCategory.value.map((p) => p.style).filter(Boolean))]);
 
-const filtered = computed(() =>
-  activeStyle.value ? inCategory.value.filter((p) => p.style === activeStyle.value) : inCategory.value,
+// Поиск по номеру модели и цвету (на языке сайта и как в CRM). Строка тоже хранится в URL (?q=).
+const search = ref(queryValue(route.query.q) || "");
+let searchTimer;
+watch(search, (value) => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    const query = { ...route.query, q: value || undefined };
+    if (!query.q) delete query.q;
+    router.replace({ name: "products", query });
+  }, 250);
+});
+watch(
+  () => route.query.q,
+  (q) => {
+    const value = queryValue(q) || "";
+    if (value !== search.value) search.value = value;
+  },
 );
 
-const hasFilters = computed(() => !!(activeCategory.value || activeStyle.value));
+const matches = (p, needle) =>
+  [p.title, p.color, colorText(p.color), p.type, typeLabel(p.type), p.style, styleLabel(p.style)]
+    .filter(Boolean)
+    .some((v) => String(v).toLowerCase().replace(/ё/g, "е").includes(needle));
+
+const filtered = computed(() => {
+  let list = activeStyle.value ? inCategory.value.filter((p) => p.style === activeStyle.value) : inCategory.value;
+  const needle = search.value.toLowerCase().replace(/ё/g, "е");
+  if (needle) list = list.filter((p) => matches(p, needle));
+  return list;
+});
+
+const hasFilters = computed(() => !!(activeCategory.value || activeStyle.value || search.value));
 
 const updateQuery = (patch) => {
   const query = { ...route.query, ...patch };
@@ -120,7 +161,10 @@ const updateQuery = (patch) => {
 
 const selectCategory = (cat) => updateQuery({ cat, style: null });
 const selectStyle = (style) => updateQuery({ style: style || null });
-const resetFilters = () => router.push({ name: "products" });
+const resetFilters = () => {
+  search.value = "";
+  router.push({ name: "products" });
+};
 
 const reload = () => store.fetchProducts({ force: true }).catch(() => {});
 
@@ -160,14 +204,18 @@ onMounted(() => {
 }
 
 .catalog__toolbar {
-  position: sticky;
-  top: var(--header-h);
-  z-index: var(--z-sticky);
   padding-block: var(--space-3);
   background: rgba(245, 241, 233, 0.94);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-block: 1px solid var(--border);
+
+  // На телефоне панель не залипает — она высокая и съедала бы пол-экрана
+  @include up(md) {
+    position: sticky;
+    top: var(--header-h);
+    z-index: var(--z-sticky);
+  }
 }
 
 .catalog__toolbar-inner {
@@ -183,8 +231,35 @@ onMounted(() => {
 
 .catalog__filters {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
+}
+
+.catalog__search {
+  position: relative;
+  flex: 1 1 220px;
+
+  .input {
+    min-height: 40px;
+    padding-left: 38px;
+    font-size: var(--fs-sm);
+    border-radius: var(--radius-pill, 999px);
+    background-color: transparent;
+  }
+
+  @include up(lg) {
+    flex: 0 1 240px;
+  }
+}
+
+.catalog__search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
 }
 
 .catalog__style {

@@ -12,9 +12,9 @@
         </div>
 
         <div class="product__info">
-          <p v-if="data.type" class="eyebrow">{{ data.type }}</p>
+          <p v-if="data.type" class="eyebrow">{{ typeLabel(data.type) }}</p>
           <h1 class="h1 product__title">{{ t("Model") }} {{ data.title }}</h1>
-          <p v-if="data.color" class="product__subtitle">{{ data.color }}</p>
+          <p v-if="data.color" class="product__subtitle">{{ colorLabel(data.color) }}</p>
 
           <section class="product__specs" aria-labelledby="specs-title">
             <h2 id="specs-title" class="product__section-title">{{ t("Characteristics") }}</h2>
@@ -45,6 +45,10 @@
                 {{ t("To call") }}
               </a>
             </div>
+            <button class="product__share" type="button" @click="share">
+              <UiIcon :name="copied ? 'check' : 'share'" :size="16" />
+              <span aria-live="polite">{{ copied ? t("Link copied") : t("Share model") }}</span>
+            </button>
             <ul class="product__perks">
               <li><UiIcon name="check" :size="16" />{{ t("Individual production") }}</li>
               <li><UiIcon name="check" :size="16" />{{ t("Turnkey installation") }}</li>
@@ -55,12 +59,30 @@
       </div>
     </div>
 
+    <nav v-if="prev || next" class="container product__pager" :aria-label="t('Other models')">
+      <RouterLink v-if="prev" :to="{ name: 'product', params: { id: prev.id } }" class="pager-link" rel="prev">
+        <UiIcon name="arrow-left" :size="18" />
+        <span>
+          <span class="label-mono">{{ t("Previous model") }}</span>
+          <span class="pager-link__title">{{ t("Model") }} {{ prev.title }}</span>
+        </span>
+      </RouterLink>
+      <span v-else />
+      <RouterLink v-if="next" :to="{ name: 'product', params: { id: next.id } }" class="pager-link pager-link--next" rel="next">
+        <span>
+          <span class="label-mono">{{ t("Next model") }}</span>
+          <span class="pager-link__title">{{ t("Model") }} {{ next.title }}</span>
+        </span>
+        <UiIcon name="arrow-right" :size="18" />
+      </RouterLink>
+    </nav>
+
     <NewProducts
       v-if="related.length"
       class="product__related"
       :items="related"
       :title="t('Similar models')"
-      :eyebrow="data.type"
+      :eyebrow="typeLabel(data.type)"
     />
 
     <BaseModal :open="zoomOpen" variant="media" :label="imageAlt" @close="zoomOpen = false">
@@ -81,26 +103,66 @@ import Breadcrumbs from "@/components/ui/Breadcrumbs.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import { openLeadModal } from "@/composables/useLeadModal";
 import { PHONE_TEL } from "@/config/company";
+import { typeLabel, styleLabel } from "@/utils/crmLabels";
+import { colorLabel } from "@/utils/doorColors";
 
 const props = defineProps({
   data: { type: Object, required: true },
   related: { type: Array, default: () => [] },
+  prev: { type: Object, default: null },
+  next: { type: Object, default: null },
 });
 
 const { t } = useI18n();
 const zoomOpen = ref(false);
 
+const copied = ref(false);
+let copiedTimer;
+
 watch(
   () => props.data.id,
-  () => (zoomOpen.value = false),
+  () => {
+    zoomOpen.value = false;
+    copied.value = false;
+  },
 );
+
+// Поделиться моделью: системное меню на телефонах, иначе — копирование ссылки.
+const share = async () => {
+  const url = window.location.href;
+  const title = `Ko‘kcha eshiklar — ${t("Model")} ${props.data.title}`;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, url });
+      return;
+    } catch (e) {
+      if (e?.name === "AbortError") return;
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch {
+    const field = document.createElement("textarea");
+    field.value = url;
+    field.setAttribute("readonly", "");
+    field.style.position = "fixed";
+    field.style.opacity = "0";
+    document.body.appendChild(field);
+    field.select();
+    document.execCommand("copy");
+    field.remove();
+  }
+  copied.value = true;
+  clearTimeout(copiedTimer);
+  copiedTimer = setTimeout(() => (copied.value = false), 2500);
+};
 
 const crumbs = computed(() => {
   const items = [
     { label: t("Home"), to: { name: "index" } },
     { label: t("Catalog"), to: { name: "products" } },
   ];
-  if (props.data.type) items.push({ label: props.data.type, to: { name: "products", query: { cat: props.data.type } } });
+  if (props.data.type) items.push({ label: typeLabel(props.data.type), to: { name: "products", query: { cat: props.data.type } } });
   items.push({ label: `${t("Model")} ${props.data.title}` });
   return items;
 });
@@ -108,19 +170,23 @@ const crumbs = computed(() => {
 // Только реальные поля из CRM; пустые значения не выводим.
 const specs = computed(() =>
   [
-    { label: t("Type"), value: props.data.type },
-    { label: t("Style"), value: props.data.style },
-    { label: t("Colour"), value: props.data.color },
+    { label: t("Type"), value: typeLabel(props.data.type) },
+    { label: t("Style"), value: styleLabel(props.data.style) },
+    { label: t("Colour"), value: colorLabel(props.data.color) },
     { label: t("Size"), value: props.data.size },
     { label: t("Filling"), value: props.data.fill },
   ].filter((s) => s.value),
 );
 
 const imageAlt = computed(() =>
-  [`${t("Model")} ${props.data.title}`, props.data.type, props.data.color].filter(Boolean).join(", "),
+  [`${t("Model")} ${props.data.title}`, typeLabel(props.data.type), colorLabel(props.data.color)].filter(Boolean).join(", "),
 );
 
-const onLeadClick = () => openLeadModal("product-page");
+const onLeadClick = () =>
+  openLeadModal("product-page", {
+    title: `${t("Model")} ${props.data.title}`,
+    lines: [typeLabel(props.data.type), styleLabel(props.data.style), colorLabel(props.data.color)].filter(Boolean),
+  });
 </script>
 
 <style scoped lang="scss">
@@ -265,6 +331,74 @@ const onLeadClick = () => openLeadModal("product-page");
   svg {
     color: var(--accent-ink);
   }
+}
+
+.product__share {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--dur) var(--ease);
+
+  &:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+.product__pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+
+.pager-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 72px;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition:
+    border-color var(--dur) var(--ease),
+    background-color var(--dur) var(--ease);
+
+  > span {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &:hover {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  @include down(sm) {
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-3);
+  }
+}
+
+.pager-link--next {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.pager-link__title {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.35rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .product__related {

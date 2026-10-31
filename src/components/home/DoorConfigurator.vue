@@ -66,7 +66,7 @@
                 :aria-pressed="selection.type === c"
                 @click="setType(c)"
               >
-                {{ c }}
+                {{ typeLabel(c) }}
               </button>
             </div>
           </fieldset>
@@ -85,7 +85,7 @@
                 :aria-pressed="selection.style === s"
                 @click="setStyle(s)"
               >
-                {{ s }}
+                {{ styleLabel(s) }}
                 <span class="chip__count">{{ modelsFor(selection.type, s).length }}</span>
               </button>
             </div>
@@ -145,8 +145,8 @@
             <p class="label-mono">05 · {{ t("Your configuration") }}</p>
             <dl class="summary__list">
               <div><dt>{{ t("Model") }}</dt><dd>{{ product.title }}</dd></div>
-              <div><dt>{{ t("Collection") }}</dt><dd>{{ product.type }}</dd></div>
-              <div><dt>{{ t("Style") }}</dt><dd>{{ product.style }}</dd></div>
+              <div><dt>{{ t("Collection") }}</dt><dd>{{ typeLabel(product.type) }}</dd></div>
+              <div><dt>{{ t("Style") }}</dt><dd>{{ styleLabel(product.style) }}</dd></div>
               <div><dt>{{ t("Colour") }}</dt><dd>{{ colorLabel(product.color) }}</dd></div>
               <div><dt>{{ t("Size") }}</dt><dd>{{ sizeText }}</dd></div>
             </dl>
@@ -178,6 +178,7 @@ import { useProductStore } from "@/store/product";
 import { useConfigurator, CUSTOM_SIZE } from "@/composables/useConfigurator";
 import { openLeadModal } from "@/composables/useLeadModal";
 import { colorLabel, colorSwatch } from "@/utils/doorColors";
+import { typeLabel, styleLabel } from "@/utils/crmLabels";
 
 const { t } = useI18n();
 const store = useProductStore();
@@ -192,7 +193,7 @@ const sizeText = computed(() =>
 );
 
 const productAlt = computed(() =>
-  product.value ? [`${t("Model")} ${product.value.title}`, product.value.type, colorLabel(product.value.color)].join(", ") : "",
+  product.value ? [`${t("Model")} ${product.value.title}`, typeLabel(product.value.type), colorLabel(product.value.color)].join(", ") : "",
 );
 
 const requestConsultation = () => {
@@ -200,7 +201,7 @@ const requestConsultation = () => {
   if (!p) return;
   openLeadModal("configurator", {
     title: `${t("Model")} ${p.title}`,
-    lines: [p.type, p.style, colorLabel(p.color), sizeText.value].filter(Boolean),
+    lines: [typeLabel(p.type), styleLabel(p.style), colorLabel(p.color), sizeText.value].filter(Boolean),
   });
 };
 

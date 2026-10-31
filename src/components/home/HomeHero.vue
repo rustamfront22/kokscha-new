@@ -65,7 +65,7 @@
               :aria-pressed="active?.id === item.id"
               @click="activeId = item.id"
             >
-              {{ item.type }}
+              {{ typeLabel(item.type) }}
             </button>
           </div>
           <RouterLink v-if="active" :to="{ name: 'product', params: { id: active.id } }" class="hero__model">
@@ -109,6 +109,7 @@ import { useI18n } from "vue-i18n";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import { useProductStore } from "@/store/product";
 import { colorLabel } from "@/utils/doorColors";
+import { typeLabel } from "@/utils/crmLabels";
 
 const { t } = useI18n();
 const store = useProductStore();
@@ -132,7 +133,7 @@ const picks = computed(() =>
 const activeId = ref(null);
 const active = computed(() => store.findById(activeId.value) || picks.value[0] || null);
 
-const doorAlt = (p) => [`${t("Model")} ${p.title}`, p.type, colorLabel(p.color)].filter(Boolean).join(", ");
+const doorAlt = (p) => [`${t("Model")} ${p.title}`, typeLabel(p.type), colorLabel(p.color)].filter(Boolean).join(", ");
 
 const scrollTo = (e, selector) => {
   const el = document.querySelector(selector);
@@ -383,6 +384,11 @@ onBeforeUnmount(() => {
 
   @include down(lg) {
     width: min(78%, 300px);
+  }
+
+  // На телефоне ниша ниже, чтобы выбор коллекции помещался ближе к первому экрану
+  @include down(sm) {
+    width: min(62%, 230px);
   }
 }
 

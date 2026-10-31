@@ -1,3 +1,5 @@
+import { colorText } from "@/utils/crmLabels";
+
 // Образцы цвета для кружков-свотчей по текстовому названию цвета из CRM
 // («Тёплый песочный», «Graphite Grey», «Цвет Глины»…). В CRM нет HEX-кодов,
 // поэтому оттенок приблизительный — в интерфейсе это явно подписано.
@@ -48,11 +50,7 @@ export function colorSwatch(name = "") {
   return FALLBACK;
 }
 
-// Убираем служебное «цвет» из названий вида «Кремовый цвет» / «Цвет Глины» для подписей.
+// Подпись цвета для интерфейса: без служебного «цвет» и на языке сайта (см. utils/crmLabels).
 export function colorLabel(name = "") {
-  const cleaned = name
-    .replace(/\s*цвет\s*/gi, " ")
-    .replace(/\s*цыет\s*/gi, " ")
-    .trim();
-  return cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : name;
+  return colorText(name);
 }

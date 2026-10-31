@@ -5,7 +5,7 @@
     </div>
 
     <div class="door-card__body">
-      <p v-if="data.type" class="door-card__type">{{ data.type }}</p>
+      <p v-if="data.type" class="door-card__type">{{ typeLabel(data.type) }}</p>
       <h3 class="door-card__title">
         <!-- Ссылка растянута на всю карточку через ::after; кнопка заявки лежит рядом, а не внутри ссылки -->
         <RouterLink :to="{ name: 'product', params: { id: data.id } }" class="door-card__link">
@@ -32,16 +32,19 @@ import { useI18n } from "vue-i18n";
 import AppImage from "@/components/ui/AppImage.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import { openLeadModal } from "@/composables/useLeadModal";
+import { typeLabel } from "@/utils/crmLabels";
+import { colorLabel } from "@/utils/doorColors";
 
 const props = defineProps(["data"]);
 const { t } = useI18n();
 
-const meta = computed(() => [props.data.color, props.data.size].filter(Boolean).join(" · "));
+const meta = computed(() => [colorLabel(props.data.color), props.data.size].filter(Boolean).join(" · "));
 const imageAlt = computed(() =>
-  [`${t("Model")} ${props.data.title}`, props.data.type, props.data.color].filter(Boolean).join(", "),
+  [`${t("Model")} ${props.data.title}`, typeLabel(props.data.type), colorLabel(props.data.color)].filter(Boolean).join(", "),
 );
 
-const onLeadClick = () => openLeadModal("product-card");
+const onLeadClick = () =>
+  openLeadModal("product-card", { title: `${t("Model")} ${props.data.title}`, lines: [typeLabel(props.data.type), colorLabel(props.data.color)].filter(Boolean) });
 </script>
 
 <style scoped>

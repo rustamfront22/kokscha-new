@@ -33,11 +33,11 @@
         <li v-for="(cat, i) in items" :key="cat.name" class="tile" :class="`tile--${i + 1}`" v-reveal="(i % 3) * 80">
           <RouterLink :to="{ name: 'products', query: { cat: cat.name } }" class="tile__link">
             <div class="tile__media">
-              <img :src="cat.cover" :alt="`${cat.name} — ${t('Model')} ${cat.coverModel}`" loading="lazy" decoding="async" />
+              <img :src="cat.cover" :alt="`${typeLabel(cat.name)} — ${t('Model')} ${cat.coverModel}`" loading="lazy" decoding="async" />
             </div>
             <div class="tile__body">
               <span class="label-mono">{{ String(i + 1).padStart(2, "0") }}</span>
-              <h3 class="tile__title">{{ cat.name }}</h3>
+              <h3 class="tile__title">{{ typeLabel(cat.name) }}</h3>
               <span class="tile__count">{{ t("Models: {count}", { count: cat.count }) }}</span>
             </div>
             <span class="tile__arrow" aria-hidden="true"><UiIcon name="arrow-up-right" :size="18" /></span>
@@ -54,6 +54,7 @@ import { useI18n } from "vue-i18n";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import StateMessage from "@/components/ui/StateMessage.vue";
 import { useProductStore } from "@/store/product";
+import { typeLabel } from "@/utils/crmLabels";
 
 const { t } = useI18n();
 const store = useProductStore();

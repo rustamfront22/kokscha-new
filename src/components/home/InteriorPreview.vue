@@ -52,7 +52,7 @@
           </div>
 
           <div class="interior__group">
-            <p class="label-mono">{{ t("Model") }} · {{ product?.type }}</p>
+            <p class="label-mono">{{ t("Model") }} · {{ typeLabel(product?.type) }}</p>
             <ul v-if="models.length" class="interior__models">
               <li v-for="m in models" :key="m.id">
                 <button
@@ -74,7 +74,7 @@
           <div v-if="product" class="interior__current">
             <div>
               <p class="interior__model">{{ t("Model") }} {{ product.title }}</p>
-              <p class="text-muted">{{ colorLabel(product.color) }} · {{ product.style }}</p>
+              <p class="text-muted">{{ colorLabel(product.color) }} · {{ styleLabel(product.style) }}</p>
             </div>
             <button class="btn btn--primary" type="button" @click="request">
               {{ t("Get a consultation") }}
@@ -93,6 +93,7 @@ import { useProductStore } from "@/store/product";
 import { useConfigurator } from "@/composables/useConfigurator";
 import { openLeadModal } from "@/composables/useLeadModal";
 import { colorLabel } from "@/utils/doorColors";
+import { typeLabel, styleLabel } from "@/utils/crmLabels";
 
 const { t } = useI18n();
 const store = useProductStore();
@@ -123,14 +124,23 @@ const doorHeightM = computed(() => {
 const doorHeightPct = computed(() => Math.min(92, (doorHeightM.value / WALL_HEIGHT_M) * 100));
 const heightLabel = computed(() => `${doorHeightM.value.toFixed(2).replace(".", ",")} ${t("m")}`);
 
-const models = computed(() => (product.value ? modelsFor(product.value.type).slice(0, 12) : []));
+// Лента моделей: та же коллекция и стиль, что в конфигураторе (если таких мало — вся коллекция).
+// Выбранная модель всегда в ленте — раньше при модели дальше 12-й ни одна кнопка не была активной.
+const models = computed(() => {
+  const p = product.value;
+  if (!p) return [];
+  const sameStyle = modelsFor(p.type, p.style);
+  const list = (sameStyle.length >= 4 ? sameStyle : modelsFor(p.type)).slice(0, 12);
+  if (!list.some((m) => m.id === p.id)) list.splice(list.length ? list.length - 1 : 0, 1, p);
+  return list;
+});
 
 const request = () => {
   const p = product.value;
   if (!p) return;
   openLeadModal("interior-preview", {
     title: `${t("Model")} ${p.title}`,
-    lines: [p.type, colorLabel(p.color), t(scene.value.label)],
+    lines: [typeLabel(p.type), colorLabel(p.color), t(scene.value.label)],
   });
 };
 

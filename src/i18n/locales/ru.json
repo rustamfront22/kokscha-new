@@ -381,5 +381,12 @@
   "Ready to choose": "Готовы выбрать",
   "your door?": "свою дверь?",
   "Your selection": "Ваш выбор",
-  "Mention the model number when our manager calls you.": "Назовите номер модели, когда менеджер вам перезвонит."
+  "Mention the model number when our manager calls you.": "Назовите номер модели, когда менеджер вам перезвонит.",
+  "Share model": "Поделиться моделью",
+  "Link copied": "Ссылка скопирована",
+  "Other models": "Другие модели",
+  "Previous model": "Предыдущая модель",
+  "Next model": "Следующая модель",
+  "Search by model number or colour": "Поиск по номеру модели или цвету",
+  "Model number or colour": "Номер модели или цвет"
 }

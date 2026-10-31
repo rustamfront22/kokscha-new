@@ -12,7 +12,7 @@
       :aria-pressed="active === cat.name"
       @click="emit('select', cat.name)"
     >
-      {{ cat.name }}
+      {{ typeLabel(cat.name) }}
       <span class="chip__count">{{ cat.count }}</span>
     </button>
   </div>
@@ -20,6 +20,7 @@
 
 <script setup>
 import { useI18n } from "vue-i18n";
+import { typeLabel } from "@/utils/crmLabels";
 
 // Фильтр по категориям (поле type из CRM). Выбор отражается в ?cat= на странице каталога.
 defineProps({

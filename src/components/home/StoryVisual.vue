@@ -1,4 +1,7 @@
 <script setup>
+import { typeLabel } from "@/utils/crmLabels";
+import { colorLabel } from "@/utils/doorColors";
+
 // Визуал одной сцены повествования. Только реальные материалы:
 // фото моделей из CRM, кадры из видео производства и фото проектов из Instagram.
 defineProps({
@@ -12,15 +15,15 @@ defineProps({
   <div class="visual" :class="`visual--${scene}`">
     <template v-if="scene === 'form'">
       <div v-for="(d, i) in doors" :key="d.id" class="visual__niche" :style="{ '--i': i }">
-        <img :src="d.thumbnail" :alt="d.type" loading="lazy" decoding="async" />
-        <span class="label-mono">{{ d.type }}</span>
+        <img :src="d.thumbnail" :alt="typeLabel(d.type)" loading="lazy" decoding="async" />
+        <span class="label-mono">{{ typeLabel(d.type) }}</span>
       </div>
     </template>
 
     <template v-else-if="scene === 'color'">
       <div class="visual__niche visual__niche--single">
         <Transition name="fade" mode="out-in">
-          <img v-if="swatchModel" :key="swatchModel.id" :src="swatchModel.thumbnail" :alt="swatchModel.color" decoding="async" />
+          <img v-if="swatchModel" :key="swatchModel.id" :src="swatchModel.thumbnail" :alt="colorLabel(swatchModel.color)" decoding="async" />
         </Transition>
       </div>
     </template>

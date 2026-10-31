@@ -26,7 +26,7 @@
             :aria-pressed="cat === c.name"
             @click="selectCat(c.name)"
           >
-            {{ c.name }} <span class="chip__count">{{ c.count }}</span>
+            {{ typeLabel(c.name) }} <span class="chip__count">{{ c.count }}</span>
           </button>
         </div>
         <div class="cp__selects">
@@ -34,7 +34,7 @@
             <span class="sr-only">{{ t("Style") }}</span>
             <select v-model="style" class="select" :disabled="!styleOptions.length">
               <option value="">{{ t("All styles") }}</option>
-              <option v-for="s in styleOptions" :key="s" :value="s">{{ s }}</option>
+              <option v-for="s in styleOptions" :key="s" :value="s">{{ styleLabel(s) }}</option>
             </select>
           </label>
           <label class="cp__select">
@@ -100,6 +100,7 @@ import Card from "@/components/views/product/Card.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import StateMessage from "@/components/ui/StateMessage.vue";
 import { useProductStore } from "@/store/product";
+import { typeLabel, styleLabel } from "@/utils/crmLabels";
 
 const { t } = useI18n();
 const store = useProductStore();
