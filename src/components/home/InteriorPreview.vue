@@ -278,6 +278,15 @@ onMounted(() => store.fetchProducts().catch(() => {}));
   line-height: 1.4;
   color: rgba(255, 255, 255, 0.92);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+
+  // На телефоне подпись не помещается на полу и наезжает на стену — выносим её под сцену
+  @include down(md) {
+    position: static;
+    padding-top: var(--space-3);
+    background: var(--bg);
+    color: var(--text-muted);
+    text-shadow: none;
+  }
 }
 
 /* ---------- Панель ---------- */

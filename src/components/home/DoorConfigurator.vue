@@ -29,7 +29,7 @@
 
       <div v-else class="config__layout">
         <!-- Визуал: фото выбранной реальной модели -->
-        <figure class="config__stage">
+        <figure ref="stageEl" class="config__stage">
           <div class="config__niche">
             <Transition name="door" mode="out-in">
               <img
@@ -48,9 +48,16 @@
         </figure>
 
         <div class="config__panel">
-          <p v-if="notice.key" class="config__notice" role="status">
-            {{ t(notice.key, notice.params) }}
-          </p>
+          <!-- Телефон: большое превью остаётся наверху, а пока листаешь опции — закреплённая мини-плашка -->
+          <div class="config__mini-wrap" :class="{ 'is-shown': miniShown }" aria-hidden="true">
+            <div v-if="product" class="config__mini">
+              <span class="config__mini-thumb"><img :src="product.thumbnail" alt="" decoding="async" /></span>
+              <span class="config__mini-text">
+                <strong>{{ t("Model") }} {{ product.title }}</strong>
+                <span>{{ colorLabel(product.color) }} · {{ typeLabel(product.type) }}</span>
+              </span>
+            </div>
+          </div>
 
           <!-- 01 Коллекция -->
           <fieldset class="step">
@@ -76,6 +83,9 @@
             <legend class="step__legend">
               <span class="label-mono">02</span>{{ t("Style") }}
             </legend>
+            <p v-if="notice.key" class="config__notice" role="status">
+              {{ t(notice.key, noticeParams) }}
+            </p>
             <div class="step__options">
               <button
                 v-for="s in styles"
@@ -170,7 +180,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import StateMessage from "@/components/ui/StateMessage.vue";
@@ -187,6 +197,13 @@ const { selection, collections, styles, models, product, sizes, notice, setType,
 
 // «2.40 x 0.90» из CRM → «2,40 × 0,90 м»
 const formatSize = (s) => `${s.replace(/\./g, ",").replace(/\s*x\s*/i, " × ")} ${t("m")}`;
+
+// Названия в уведомлении об автозамене стиля — на языке сайта, как и везде
+const noticeParams = computed(() => ({
+  style: styleLabel(notice.params.style),
+  collection: typeLabel(notice.params.collection),
+  next: styleLabel(notice.params.next),
+}));
 
 const sizeText = computed(() =>
   selection.size === CUSTOM_SIZE ? t("Custom size") : selection.size ? formatSize(selection.size) : "—",
@@ -212,7 +229,25 @@ const goInterior = (e) => {
   el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 };
 
+// Мини-плашка видна, только когда большое превью ушло за верх экрана
+const stageEl = ref(null);
+const miniShown = ref(false);
+let stageObserver = null;
+watch(stageEl, (el) => {
+  stageObserver?.disconnect();
+  if (!el || !("IntersectionObserver" in window)) return;
+  const headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 64;
+  stageObserver = new IntersectionObserver(
+    ([entry]) => {
+      miniShown.value = !entry.isIntersecting && entry.boundingClientRect.top < headerH;
+    },
+    { rootMargin: `-${headerH}px 0px 0px 0px` },
+  );
+  stageObserver.observe(el);
+});
+
 onMounted(() => store.fetchProducts().catch(() => {}));
+onBeforeUnmount(() => stageObserver?.disconnect());
 </script>
 
 <style scoped lang="scss">
@@ -251,21 +286,91 @@ onMounted(() => store.fetchProducts().catch(() => {}));
     top: calc(var(--header-h) + var(--space-5));
   }
 
-  // На телефоне — компактное закреплённое превью: результат выбора виден, пока листаешь опции
+  // На телефоне превью в обычном потоке: раньше оно было закреплено на полэкрана,
+  // и опции уезжали под него — нажатия попадали в картинку, а не в кнопки
   @include down(lg) {
-    position: sticky;
-    top: var(--header-h);
-    z-index: 2;
     min-height: 0;
-    padding-block: var(--space-2);
-    background: var(--bg);
 
     .config__niche {
       aspect-ratio: auto;
-      height: 40vh;
-      max-height: 340px;
-      padding: 4% 30% 2%;
+      height: min(52vh, 420px);
+      padding: 5% 28% 3%;
     }
+  }
+}
+
+.config__mini-wrap {
+  display: none;
+
+  @include down(lg) {
+    display: block;
+    position: sticky;
+    top: var(--header-h);
+    z-index: 3;
+    height: 0;
+    margin-bottom: calc(var(--space-5) * -1); // нулевая высота и без лишнего отступа сетки
+    pointer-events: none;
+  }
+}
+
+.config__mini {
+  position: absolute;
+  top: 0;
+  right: calc(var(--gutter) * -1);
+  left: calc(var(--gutter) * -1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--gutter);
+  background: rgba(22, 21, 19, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+
+  .is-shown & {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.config__mini-thumb {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 56px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #f3ede3, #e3d8c7);
+
+  img {
+    height: 100%;
+    width: auto;
+    mix-blend-mode: multiply;
+  }
+}
+
+.config__mini-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font-size: var(--fs-sm);
+
+  strong {
+    font-weight: 600;
+  }
+
+  span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
   }
 }
 
@@ -314,6 +419,7 @@ onMounted(() => store.fetchProducts().catch(() => {}));
 }
 
 .config__notice {
+  clear: both;
   padding: var(--space-3) var(--space-4);
   border-left: 2px solid var(--c-oak-light);
   background: rgba(212, 174, 126, 0.08);
@@ -348,6 +454,10 @@ onMounted(() => store.fetchProducts().catch(() => {}));
 
 .step__value {
   margin-left: auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-family: var(--font-sans);
   font-size: var(--fs-sm);
   color: var(--text-muted);
@@ -378,8 +488,11 @@ onMounted(() => store.fetchProducts().catch(() => {}));
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
   transition: transform var(--dur) var(--ease);
 
-  &:hover {
-    transform: translateY(-2px);
+  // только для мыши: на телефоне «hover» залипает после касания
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-2px);
+    }
   }
 
   &[aria-pressed="true"] {

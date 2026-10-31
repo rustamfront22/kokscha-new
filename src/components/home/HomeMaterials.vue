@@ -45,12 +45,14 @@
           <div
             ref="lensArea"
             class="lens-area"
+            :class="{ 'is-pinned': lens.pinned }"
             :style="{ '--ratio': ratio }"
             tabindex="0"
             role="img"
             :aria-label="product ? `${t('Model')} ${product.title}. ${t('Move the magnifier with the mouse, touch or arrow keys.')}` : ''"
             @pointermove="onPointer"
-            @pointerdown="onPointer"
+            @pointerdown="onPointerDown"
+            @pointerup="onPointerUp"
             @pointerleave="lens.visible = lens.pinned"
             @keydown="onLensKey"
             @focus="showLensCentered"
@@ -66,7 +68,7 @@
           </div>
           <p class="lens-caption">
             <UiIcon name="expand" :size="16" />
-            {{ t("Move the magnifier with the mouse, touch or arrow keys.") }}
+            {{ coarse ? t("Tap the photo to zoom in, drag to move, tap again to close.") : t("Move the magnifier with the mouse, touch or arrow keys.") }}
             <span v-if="product" class="text-muted">· {{ t("Model") }} {{ product.title }}</span>
           </p>
         </div>
@@ -135,12 +137,47 @@ const lensStyle = computed(() => {
   };
 });
 
-const onPointer = (e) => {
+// Сенсорный экран: страница прокручивается свайпом по фото как обычно (touch-action: pan-y).
+// Касание без сдвига открывает лупу в этой точке, дальше её можно водить пальцем
+// (в этом режиме touch-action: none), повторное касание закрывает.
+const coarse = typeof window !== "undefined" && matchMedia("(pointer: coarse)").matches;
+let touchStart = null;
+
+const moveLens = (e) => {
   const rect = lensArea.value.getBoundingClientRect();
   lens.x = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
   lens.y = Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height));
-  lens.visible = true;
-  if (e.type === "pointerdown" && e.pointerType !== "mouse") lens.pinned = true;
+};
+
+const onPointer = (e) => {
+  if (e.pointerType === "mouse") {
+    moveLens(e);
+    lens.visible = true;
+    return;
+  }
+  if (lens.pinned) moveLens(e);
+};
+
+const onPointerDown = (e) => {
+  if (e.pointerType === "mouse") return onPointer(e);
+  touchStart = { x: e.clientX, y: e.clientY, at: Date.now() };
+  if (lens.pinned) moveLens(e);
+};
+
+const onPointerUp = (e) => {
+  if (e.pointerType === "mouse" || !touchStart) return;
+  const moved = Math.hypot(e.clientX - touchStart.x, e.clientY - touchStart.y);
+  const tap = moved < 10 && Date.now() - touchStart.at < 400;
+  touchStart = null;
+  if (!tap) return;
+  if (lens.pinned) {
+    lens.pinned = false;
+    lens.visible = false;
+  } else {
+    moveLens(e);
+    lens.pinned = true;
+    lens.visible = true;
+  }
 };
 
 const showLensCentered = () => {
@@ -261,7 +298,11 @@ onMounted(() => store.fetchProducts().catch(() => {}));
   border-radius: 6px;
   background: linear-gradient(180deg, #efe8dc 0%, #e2d7c6 100%);
   cursor: crosshair;
-  touch-action: none;
+  touch-action: pan-y pinch-zoom;
+
+  &.is-pinned {
+    touch-action: none;
+  }
 
   img {
     width: 100%;
