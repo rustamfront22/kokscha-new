@@ -303,7 +303,7 @@
   min-height: var(--control-h);
   padding: 0 1rem;
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-xs);
+  border-radius: 12px;
   background: var(--surface);
   color: var(--text);
   font: inherit;
@@ -349,7 +349,7 @@
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius);
   padding: clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
 }
 
@@ -443,6 +443,10 @@
   &::after {
     content: "";
     position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     inset: 0;
     transform: translateX(-100%);
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
@@ -508,7 +512,7 @@
   min-height: 40px;
   padding: 0 0.75rem;
   border: 1px solid transparent;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-pill);
   color: inherit;
   font-size: var(--fs-sm);
   font-weight: 600;

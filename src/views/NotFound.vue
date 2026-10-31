@@ -6,10 +6,10 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <section class="not-found">
+  <section class="not-found theme-dark">
     <div class="container not-found__inner">
       <p class="not-found__code" aria-hidden="true">404</p>
-      <h1 class="h1">{{ t("Page not found") }}</h1>
+      <h1 class="display">{{ t("Page not found") }}</h1>
       <p class="lead">{{ t("The page you are looking for does not exist or has been moved.") }}</p>
       <div class="actions">
         <RouterLink :to="{ name: 'index' }" class="btn btn--primary">
@@ -26,7 +26,9 @@ const { t } = useI18n();
 
 <style scoped>
 .not-found {
-  padding-block: clamp(4rem, 3rem + 8vw, 10rem);
+  min-height: 80vh;
+  padding-top: calc(var(--header-h) + clamp(3rem, 2rem + 6vw, 8rem));
+  padding-bottom: clamp(4rem, 3rem + 8vw, 10rem);
 }
 
 .not-found__inner {
@@ -41,6 +43,7 @@ const { t } = useI18n();
   font-family: var(--font-display);
   font-size: clamp(6rem, 4rem + 10vw, 12rem);
   line-height: 0.9;
-  color: var(--c-sand);
+  color: var(--c-oak-light);
+  opacity: 0.35;
 }
 </style>

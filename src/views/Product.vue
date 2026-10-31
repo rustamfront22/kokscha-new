@@ -1,5 +1,5 @@
 <template>
-  <div class="product-page">
+  <div class="product-page theme-dark">
     <div v-if="store.isLoading" class="container product-page__loading" aria-hidden="true">
       <div class="skeleton product-page__sk-image" />
       <div class="product-page__sk-text">
@@ -68,6 +68,15 @@ onMounted(() => {
 
 <style scoped lang="scss">
 @use "@/assets/styles/mixins" as *;
+
+.product-page {
+  min-height: 70vh;
+}
+
+// Состояния загрузки / ошибки / «не найдено» — под прозрачной шапкой
+.product-page > .container {
+  padding-top: calc(var(--header-h) + var(--space-7));
+}
 
 .product-page__loading {
   display: grid;

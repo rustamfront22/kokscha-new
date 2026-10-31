@@ -218,17 +218,23 @@ onMounted(() => {
       },
       { threshold: 0.6 },
     );
-    // ждём данные каталога, чтобы анимировать реальные значения
-    const stop = watch(
-      () => store.status,
-      (s) => {
-        if (s === "success") {
-          counterObserver?.observe(statsEl.value);
-          stop();
-        }
-      },
-      { immediate: true },
-    );
+    // Ждём данные каталога, чтобы анимировать реальные значения.
+    // Важно: без immediate — иначе при повторном заходе (каталог уже в кэше) колбэк
+    // вызывался до объявления stop, падал с ReferenceError и «замораживал» навигацию.
+    const observeCounters = () => counterObserver?.observe(statsEl.value);
+    if (store.status === "success") {
+      observeCounters();
+    } else {
+      const stop = watch(
+        () => store.status,
+        (s) => {
+          if (s === "success") {
+            observeCounters();
+            stop();
+          }
+        },
+      );
+    }
   }
 });
 
@@ -255,6 +261,10 @@ onBeforeUnmount(() => {
 
 .hero__backdrop {
   position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   inset: 0;
   z-index: -1;
   background: var(--c-graphite-deep);
@@ -262,6 +272,10 @@ onBeforeUnmount(() => {
   img,
   video {
     position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     inset: 0;
     width: 100%;
     height: 100%;
@@ -281,6 +295,10 @@ onBeforeUnmount(() => {
   &::after {
     content: "";
     position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     inset: 0;
     background:
       linear-gradient(90deg, var(--c-graphite-deep) 0%, rgba(22, 21, 19, 0.72) 45%, rgba(22, 21, 19, 0.35) 100%),

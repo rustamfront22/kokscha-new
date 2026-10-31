@@ -33,14 +33,8 @@
   background: var(--surface);
 }
 
+// Тёмная секция внутренних страниц — те же токены, что и «шоурум» на главной (.theme-dark ниже)
 .section--dark {
-  background: var(--surface-dark);
-  color: var(--text-on-dark);
-
-  .eyebrow {
-    color: var(--c-sand);
-  }
-
   .lead,
   .text-muted {
     color: var(--text-on-dark-muted);
@@ -138,8 +132,9 @@
   color: var(--c-oak-light);
 }
 
-/* ---------- Тёмная сцена (главная) ---------- */
-.theme-dark {
+/* ---------- Тёмная сцена («шоурум»): главная, первые экраны и тёмные секции ---------- */
+.theme-dark,
+.section--dark {
   --bg: var(--c-graphite-deep);
   --surface: var(--c-graphite-raised);
   --surface-alt: #1c1b18;
@@ -164,22 +159,24 @@
   color: var(--text-muted);
 }
 
+// Надзаголовок секции — в той же моноширинной манере, что и метки главной
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  letter-spacing: var(--tracking-eyebrow);
+  gap: var(--space-2);
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--accent-ink);
 
   &::before {
     content: "";
-    width: 28px;
-    height: 1px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
     background: currentColor;
-    opacity: 0.6;
   }
 
   &--plain::before {

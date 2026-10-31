@@ -33,11 +33,11 @@ const onTabKeydown = (e, index) => {
 </script>
 
 <template>
-  <div class="video-page">
+  <div class="video-page theme-dark">
     <section class="vp-hero">
       <div class="container vp-hero__inner">
         <p class="eyebrow">{{ activeTab === "video" ? t("Video") : t("Projects") }}</p>
-        <h1 class="h1">
+        <h1 class="display">
           {{ activeTab === "video" ? t("Video reviews from our clients") : t("Our projects on Instagram") }}
         </h1>
         <p class="lead">
@@ -121,7 +121,8 @@ const onTabKeydown = (e, index) => {
 @use "@/assets/styles/mixins" as *;
 
 .vp-hero {
-  padding-block: clamp(2.5rem, 1.5rem + 4vw, 5.5rem) var(--space-7);
+  padding-top: calc(var(--header-h) + clamp(2.5rem, 1.5rem + 4vw, 5rem));
+  padding-bottom: var(--space-7);
 }
 
 .vp-hero__inner {
@@ -151,7 +152,7 @@ const onTabKeydown = (e, index) => {
     right: 0;
     bottom: -1px;
     height: 2px;
-    background: var(--c-graphite);
+    background: var(--accent);
     transform: scaleX(0);
     transition: transform var(--dur) var(--ease-out);
   }
@@ -237,6 +238,10 @@ const onTabKeydown = (e, index) => {
   &::after {
     content: "";
     position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     inset: 0;
     background: linear-gradient(180deg, rgba(36, 35, 32, 0.35) 0%, transparent 30%, transparent 60%, rgba(36, 35, 32, 0.7) 100%);
   }

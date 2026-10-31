@@ -69,6 +69,10 @@ const toConfigurator = (e) => {
 
 .final__bg {
   position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   inset: 0;
   z-index: -1;
   background: url("/media/showroom.jpg") center / cover no-repeat;
@@ -77,6 +81,10 @@ const toConfigurator = (e) => {
   &::after {
     content: "";
     position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     inset: 0;
     background: linear-gradient(0deg, var(--c-graphite-deep) 0%, rgba(22, 21, 19, 0.6) 60%, var(--c-graphite-deep) 100%);
   }

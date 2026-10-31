@@ -1,11 +1,12 @@
 <template>
   <div class="catalog">
-    <header class="catalog__head">
+    <header class="catalog__head theme-dark">
       <div class="container">
         <Breadcrumbs :items="[{ label: t('Home'), to: { name: 'index' } }, { label: t('Catalog') }]" />
         <div class="catalog__title-row">
           <div class="catalog__title">
-            <h1 class="h1">{{ activeCategory || t("Catalog") }}</h1>
+            <p class="eyebrow">{{ t("Catalog") }} · Ko‘kcha eshiklar</p>
+            <h1 class="display">{{ activeCategory || t("Catalog") }}</h1>
             <p class="lead">{{ t("Choose the perfect door for your project.") }}</p>
           </div>
           <p v-if="store.status === 'success'" class="catalog__found" aria-live="polite">
@@ -132,7 +133,8 @@ onMounted(() => {
 @use "@/assets/styles/mixins" as *;
 
 .catalog__head {
-  padding-block: clamp(2rem, 1.5rem + 2vw, 3.5rem) var(--space-6);
+  padding-top: calc(var(--header-h) + clamp(1.5rem, 1rem + 2vw, 3rem));
+  padding-bottom: clamp(2.5rem, 2rem + 2vw, 4rem);
 }
 
 .catalog__title-row {

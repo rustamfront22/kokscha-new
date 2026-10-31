@@ -50,8 +50,10 @@ const onLeadClick = () => openLeadModal("product-card");
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: #fbf9f5;
+  color: var(--c-graphite);
   transition:
     border-color var(--dur) var(--ease),
     box-shadow var(--dur) var(--ease),
@@ -59,13 +61,8 @@ const onLeadClick = () => openLeadModal("product-card");
 }
 
 .door-card:hover {
-  border-color: var(--border-strong);
   box-shadow: var(--shadow);
   transform: translateY(-3px);
-}
-
-.door-card:focus-within {
-  border-color: var(--c-graphite);
 }
 
 /* Фокус клавиатуры на растянутой ссылке — обводка всей карточки */
@@ -78,7 +75,7 @@ const onLeadClick = () => openLeadModal("product-card");
   position: relative;
   aspect-ratio: 3 / 4;
   padding: 8% 14% 4%;
-  background: linear-gradient(180deg, var(--c-ivory) 0%, var(--c-linen) 100%);
+  background: linear-gradient(180deg, #efe8dc 0%, #e4d9c8 100%);
   overflow: hidden;
 }
 
@@ -99,23 +96,28 @@ const onLeadClick = () => openLeadModal("product-card");
 }
 
 .door-card__type {
-  font-size: var(--fs-xs);
-  font-weight: 600;
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent-ink);
+  color: var(--c-oak-ink);
 }
 
 .door-card__title {
   font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-size: 1.375rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
   line-height: 1.15;
 }
 
 .door-card__link::after {
   content: "";
   position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   inset: 0;
   z-index: 1;
 }
@@ -126,7 +128,7 @@ const onLeadClick = () => openLeadModal("product-card");
 
 .door-card__meta {
   font-size: var(--fs-sm);
-  color: var(--text-muted);
+  color: var(--c-muted);
 }
 
 .door-card__footer {
@@ -136,7 +138,7 @@ const onLeadClick = () => openLeadModal("product-card");
   gap: var(--space-3);
   margin-top: auto;
   padding: var(--space-3) var(--space-4) var(--space-4);
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--c-line);
 }
 
 .door-card__request {
@@ -160,7 +162,7 @@ const onLeadClick = () => openLeadModal("product-card");
   place-items: center;
   width: 36px;
   height: 36px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--c-line-strong);
   border-radius: 50%;
   transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }

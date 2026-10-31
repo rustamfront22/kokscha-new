@@ -11,11 +11,11 @@ const { t } = useI18n();
 
 <template>
   <div class="our-partners">
-    <section class="op-hero">
+    <section class="op-hero theme-dark">
       <div class="container op-hero__grid">
         <div class="op-hero__text">
           <p class="eyebrow">{{ t("Our partners") }}</p>
-          <h1 class="h1">{{ t("Companies that trust Ko'kcha doors") }}</h1>
+          <h1 class="display">{{ t("Companies that trust Ko'kcha doors") }}</h1>
         </div>
         <p class="lead op-hero__lead">
           {{ t("From boutique hotels and bridal salons to manufacturing and media brands — these are some of the companies we've worked with across Tashkent.") }}
@@ -85,7 +85,8 @@ const { t } = useI18n();
 @use "@/assets/styles/mixins" as *;
 
 .op-hero {
-  padding-block: clamp(2.5rem, 1.5rem + 4vw, 5.5rem) var(--space-6);
+  padding-top: calc(var(--header-h) + clamp(2.5rem, 1.5rem + 4vw, 5rem));
+  padding-bottom: var(--space-7);
 }
 
 .op-hero__grid {

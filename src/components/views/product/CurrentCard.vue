@@ -1,5 +1,5 @@
 <template>
-  <article class="product">
+  <article class="product theme-dark">
     <div class="container">
       <Breadcrumbs :items="crumbs" />
 
@@ -127,7 +127,7 @@ const onLeadClick = () => openLeadModal("product-page");
 @use "@/assets/styles/mixins" as *;
 
 .product {
-  padding-top: clamp(1.5rem, 1rem + 2vw, 3rem);
+  padding-top: calc(var(--header-h) + clamp(1.5rem, 1rem + 2vw, 3rem));
 }
 
 .product__grid {
@@ -155,8 +155,8 @@ const onLeadClick = () => openLeadModal("product-page");
   width: 100%;
   aspect-ratio: 4 / 5;
   padding: 7% 18%;
-  background: linear-gradient(180deg, var(--c-ivory) 0%, var(--c-linen) 100%);
-  border: 1px solid var(--border);
+  background: radial-gradient(ellipse at 50% 30%, #f3ede3 0%, #e3d8c7 70%);
+  border-radius: var(--radius);
   cursor: zoom-in;
 
   :deep(img) {
@@ -228,7 +228,7 @@ const onLeadClick = () => openLeadModal("product-page");
 
 .product__description p {
   max-width: 62ch;
-  color: var(--ink-soft, var(--c-ink-soft));
+  color: var(--text-muted);
   white-space: pre-line;
 }
 
@@ -270,7 +270,7 @@ const onLeadClick = () => openLeadModal("product-page");
 .product__related {
   margin-top: var(--section-y);
   padding-block: var(--section-y);
-  background: var(--surface-alt);
+  border-top: 1px solid var(--border);
 }
 
 .product__zoomed {

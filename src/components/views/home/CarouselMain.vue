@@ -142,6 +142,10 @@ onBeforeUnmount(() => {
 
 .hero__media {
   position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   inset: 0;
   z-index: -1;
 }
@@ -149,6 +153,10 @@ onBeforeUnmount(() => {
 .hero__poster,
 .hero__video {
   position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   inset: 0;
   width: 100%;
   height: 100%;
@@ -166,6 +174,10 @@ onBeforeUnmount(() => {
 
 .hero__shade {
   position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   inset: 0;
   background:
     linear-gradient(180deg, rgba(36, 35, 32, 0.55) 0%, rgba(36, 35, 32, 0.1) 30%, rgba(36, 35, 32, 0.2) 55%, rgba(36, 35, 32, 0.88) 100%),

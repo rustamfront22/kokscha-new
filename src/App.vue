@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { watch } from "vue";
+import { nextTick, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import Header from "@/components/partials/Header.vue";
@@ -23,24 +23,28 @@ const route = useRoute();
 const router = useRouter();
 const { t, locale } = useI18n();
 
+// Заголовок, description, Open Graph и <html lang> — по маршруту и выбранному языку.
+const updateMeta = () => {
+  const override = metaOverride.value || {};
+  applyDocumentMeta({
+    title: override.title ?? (route.meta.title ? t(route.meta.title) : ""),
+    description: override.description ?? (route.meta.description ? t(route.meta.description) : ""),
+    locale: locale.value,
+  });
+};
+
 // Сброс переопределений до того, как новая страница выставит свои (например, название модели).
 router.beforeEach((to, from) => {
   if (to.fullPath !== from.fullPath) metaOverride.value = null;
 });
 
-// Заголовок, description, Open Graph и <html lang> — по маршруту и выбранному языку.
-watch(
-  [() => route.name, locale, metaOverride],
-  () => {
-    const override = metaOverride.value || {};
-    applyDocumentMeta({
-      title: override.title ?? (route.meta.title ? t(route.meta.title) : ""),
-      description: override.description ?? (route.meta.description ? t(route.meta.description) : ""),
-      locale: locale.value,
-    });
-  },
-  { immediate: true },
-);
+// Обновление по завершении навигации, а не через общий watch на route:
+// раньше страница модели меняла metaOverride прямо во время смены маршрута,
+// и задача watch «застревала» в очереди — заголовок вкладки переставал обновляться.
+router.afterEach(() => nextTick(updateMeta));
+watch(locale, updateMeta, { flush: "post" });
+watch(metaOverride, updateMeta, { flush: "post" });
+onMounted(updateMeta);
 </script>
 
 <style scoped>

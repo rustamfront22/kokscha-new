@@ -164,6 +164,10 @@ onBeforeUnmount(() => {
 
 .header {
   position: fixed;
+  top: 0;
+  right: 0;
+  bottom: auto;
+  left: 0;
   inset: 0 0 auto;
   z-index: var(--z-header);
   color: var(--text);
@@ -302,6 +306,10 @@ onBeforeUnmount(() => {
 /* Мобильное меню */
 .drawer {
   position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   inset: 0;
   z-index: var(--z-drawer);
   display: flex;

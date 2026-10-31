@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import BaseModal from "@/components/ui/BaseModal.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
@@ -148,16 +148,71 @@ const submitLead = async () => {
 // Совместимость: App.vue и старый код могли вызывать ref.openModal().
 defineExpose({ openModal: () => open("legacy") });
 
+/* Плавающая кнопка связи: два прямых действия — позвонить или оставить заявку */
+const dialOpen = ref(false);
+const dialEl = ref(null);
+
+const openForm = () => {
+  dialOpen.value = false;
+  open("fab");
+};
+
+const onDocPointer = (e) => {
+  if (dialOpen.value && dialEl.value && !dialEl.value.contains(e.target)) dialOpen.value = false;
+};
+
+const onDocKey = (e) => {
+  if (e.key === "Escape" && dialOpen.value) dialOpen.value = false;
+};
+
+onMounted(() => {
+  document.addEventListener("pointerdown", onDocPointer);
+  document.addEventListener("keydown", onDocKey);
+});
+
 onUnmounted(() => {
   clearInterval(timer);
   clearTimeout(closeTimer);
+  document.removeEventListener("pointerdown", onDocPointer);
+  document.removeEventListener("keydown", onDocKey);
 });
 </script>
 
 <template>
-  <button class="callback-fab" type="button" :aria-label="t('Request a call back')" @click="open('fab')">
-    <UiIcon name="phone" :size="22" />
-  </button>
+  <div ref="dialEl" class="dial" :class="{ 'is-open': dialOpen }">
+    <Transition name="dial">
+      <ul v-if="dialOpen" id="contact-dial" class="dial__menu">
+        <li>
+          <a class="dial__action" :href="`tel:${PHONE_TEL}`" @click="dialOpen = false">
+            <span class="dial__icon"><UiIcon name="phone" :size="18" /></span>
+            <span>
+              {{ t("To call") }}
+              <small>{{ PHONE_DISPLAY }}</small>
+            </span>
+          </a>
+        </li>
+        <li>
+          <button class="dial__action" type="button" @click="openForm">
+            <span class="dial__icon"><UiIcon name="mail" :size="18" /></span>
+            <span>
+              {{ t("Submit your application") }}
+              <small>{{ t("Request a call back") }}</small>
+            </span>
+          </button>
+        </li>
+      </ul>
+    </Transition>
+    <button
+      class="callback-fab"
+      type="button"
+      :aria-label="dialOpen ? t('Close') : t('Contacts')"
+      :aria-expanded="dialOpen"
+      aria-controls="contact-dial"
+      @click="dialOpen = !dialOpen"
+    >
+      <UiIcon :name="dialOpen ? 'close' : 'phone'" :size="22" />
+    </button>
+  </div>
 
   <BaseModal :open="state.open" labelledby="callback-title" @close="close">
     <div class="callback">
@@ -236,11 +291,85 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="scss">
-.callback-fab {
+/* Плавающее меню связи */
+.dial {
   position: fixed;
-  right: max(var(--space-4), env(safe-area-inset-right));
-  bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  right: 16px;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: 20px;
+  bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px));
   z-index: var(--z-fab);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.dial__menu {
+  display: grid;
+  margin-bottom: 12px;
+  min-width: 240px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--c-ivory);
+  color: var(--c-graphite);
+  box-shadow: var(--shadow-lg);
+}
+
+.dial__action {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 60px;
+  padding: var(--space-3) var(--space-4);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  text-align: left;
+  color: inherit;
+  transition: background-color var(--dur) var(--ease);
+
+  small {
+    display: block;
+    font-weight: 400;
+    font-size: var(--fs-xs);
+    color: var(--c-muted);
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--c-linen);
+  }
+}
+
+.dial__menu li + li .dial__action {
+  border-top: 1px solid var(--c-line);
+}
+
+.dial__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--c-graphite);
+  color: var(--c-ivory);
+}
+
+.dial-enter-active,
+.dial-leave-active {
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease-out);
+  transform-origin: bottom right;
+}
+
+.dial-enter-from,
+.dial-leave-to {
+  opacity: 0;
+  transform: translateY(8px) scale(0.96);
+}
+
+.callback-fab {
+  position: relative;
   display: grid;
   place-items: center;
   width: 58px;
@@ -260,6 +389,10 @@ onUnmounted(() => {
 .callback-fab::after {
   content: "";
   position: absolute;
+  top: -5px;
+  right: -5px;
+  bottom: -5px;
+  left: -5px;
   inset: -5px;
   border: 1px solid var(--c-oak);
   border-radius: 50%;

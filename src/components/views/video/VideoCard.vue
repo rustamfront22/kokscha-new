@@ -63,6 +63,10 @@ const formattedDate = computed(() => {
 .video-card__thumb::after {
   content: "";
   position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   inset: 0;
   background: linear-gradient(180deg, transparent 55%, rgba(36, 35, 32, 0.45));
 }

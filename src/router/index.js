@@ -4,6 +4,7 @@ import Index from "../views/Index.vue";
 
 // Главная грузится сразу, остальные страницы — отдельными чанками.
 // meta.title / meta.description — ключи переводов (см. App.vue → applyDocumentMeta).
+// overlayHeader — у страницы тёмный первый экран под прозрачной шапкой (сейчас у всех страниц).
 const routes = [
   {
     path: "/",
@@ -19,19 +20,19 @@ const routes = [
     path: "/products",
     component: () => import("../views/Products.vue"),
     name: "products",
-    meta: { title: "Catalog", description: "Choose the perfect door for your project." },
+    meta: { overlayHeader: true, title: "Catalog", description: "Choose the perfect door for your project." },
   },
   {
     path: "/products/:id",
     component: () => import("../views/Product.vue"),
     name: "product",
-    meta: { title: "Catalog", description: "Choose the perfect door for your project." },
+    meta: { overlayHeader: true, title: "Catalog", description: "Choose the perfect door for your project." },
   },
   {
     path: "/about",
     component: () => import("../views/About.vue"),
     name: "about",
-    meta: {
+    meta: { overlayHeader: true,
       title: "About the company",
       description:
         "We produce and install entrance and interior doors in Tashkent. Individual sizes, finishes, fittings and installation are turnkey.",
@@ -41,7 +42,7 @@ const routes = [
     path: "/partners",
     component: () => import("../views/Partners.vue"),
     name: "partners",
-    meta: {
+    meta: { overlayHeader: true,
       title: "Cooperation",
       description:
         "Stable supplies, facility support and favorable terms for construction companies, contractors and fit-out teams.",
@@ -51,19 +52,19 @@ const routes = [
     path: "/designers",
     component: () => import("../views/Designers.vue"),
     name: "designers",
-    meta: { title: "For designers", description: "For designers and architects description" },
+    meta: { overlayHeader: true, title: "For designers", description: "For designers and architects description" },
   },
   {
     path: "/builders",
     component: () => import("../views/Builders.vue"),
     name: "builders",
-    meta: { title: "For builders", description: "Ready-made door blocks for builders description" },
+    meta: { overlayHeader: true, title: "For builders", description: "Ready-made door blocks for builders description" },
   },
   {
     path: "/video",
     component: () => import("../views/Video.vue"),
     name: "video",
-    meta: {
+    meta: { overlayHeader: true,
       title: "Video",
       description:
         "Watch how Ko'kcha doors look in real interiors — hotels, salons, offices and homes of our clients.",
@@ -73,7 +74,7 @@ const routes = [
     path: "/our-partners",
     component: () => import("../views/OurPartners.vue"),
     name: "our-partners",
-    meta: {
+    meta: { overlayHeader: true,
       title: "Our partners",
       description:
         "From boutique hotels and bridal salons to manufacturing and media brands — these are some of the companies we've worked with across Tashkent.",
@@ -83,7 +84,7 @@ const routes = [
     path: "/:pathMatch(.*)*",
     component: () => import("../views/NotFound.vue"),
     name: "not-found",
-    meta: { title: "Page not found", description: "The page you are looking for does not exist or has been moved." },
+    meta: { overlayHeader: true, title: "Page not found", description: "The page you are looking for does not exist or has been moved." },
   },
 ];
 
