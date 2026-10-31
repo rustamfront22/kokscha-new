@@ -44,13 +44,17 @@
 
       <!-- Интерактив первого экрана: реальная модель из CRM в подсвеченной нише -->
       <figure class="hero__stage">
+        <!-- Освещённый проём в полутёмном шоуруме: свет из проёма, наличник-контур, пол -->
         <div class="hero__niche">
-          <Transition name="door" mode="out-in">
-            <div v-if="active" :key="active.id" class="hero__door">
-              <img :src="active.thumbnail" :alt="doorAlt(active)" decoding="async" />
-            </div>
-            <div v-else class="hero__door hero__door--loading skeleton" />
-          </Transition>
+          <span class="hero__floor" aria-hidden="true" />
+          <div class="hero__opening">
+            <Transition name="door" mode="out-in">
+              <div v-if="active" :key="active.id" class="hero__door">
+                <img :src="active.thumbnail" :alt="doorAlt(active)" decoding="async" />
+              </div>
+              <div v-else class="hero__door hero__door--loading skeleton" />
+            </Transition>
+          </div>
           <span class="hero__scale label-mono" aria-hidden="true">{{ active?.size || "2.40 x 0.90" }}</span>
         </div>
 
@@ -375,32 +379,98 @@ onBeforeUnmount(() => {
 
 .hero__niche {
   position: relative;
-  width: min(100%, 340px);
-  aspect-ratio: 9 / 16;
-  padding: 10% 16% 6%;
-  background: linear-gradient(180deg, #f1ebe0 0%, #e6dccd 100%);
-  border-radius: 999px 999px 4px 4px;
-  box-shadow: 0 40px 120px -40px rgba(212, 174, 126, 0.45);
+  width: min(100%, 440px);
+  aspect-ratio: 3 / 4;
+
+  // Тёплый рассеянный свет, который проём отбрасывает в тёмную комнату — без жёстких краёв
+  &::before {
+    content: "";
+    position: absolute;
+    top: -12%;
+    right: -30%;
+    bottom: -6%;
+    left: -30%;
+    background:
+      radial-gradient(ellipse 34% 46% at 50% 48%, rgba(240, 226, 204, 0.2) 0%, rgba(212, 174, 126, 0.08) 55%, transparent 100%);
+    pointer-events: none;
+  }
 
   @include down(lg) {
-    width: min(78%, 300px);
+    width: min(82%, 340px);
   }
 
   // На телефоне ниша ниже, чтобы выбор коллекции помещался ближе к первому экрану
   @include down(sm) {
-    width: min(62%, 230px);
+    width: min(78%, 280px);
   }
 }
 
+// Сам проём: светлый «просвет» с арочным верхом. Светлый фон нужен, чтобы белый фон
+// фото двери растворялся через multiply; края смягчены свечением, а не залиты плашкой.
+.hero__opening {
+  position: absolute;
+  top: 5%;
+  right: 22%;
+  bottom: 15%;
+  left: 22%;
+  border-radius: 999px 999px 0 0;
+  background:
+    radial-gradient(ellipse 80% 45% at 50% 18%, #fbf7f0 0%, transparent 100%),
+    linear-gradient(180deg, #f3ece1 0%, #ebe1d1 62%, #dccdb6 100%);
+  box-shadow:
+    0 0 40px 4px rgba(243, 232, 214, 0.16),
+    0 0 140px 30px rgba(212, 174, 126, 0.16),
+    inset 0 -36px 40px -28px rgba(96, 74, 50, 0.35);
+
+  // Наличник — тонкий контур арки в тон дуба
+  &::before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    bottom: 0;
+    left: -12px;
+    border: 1px solid rgba(212, 174, 126, 0.5);
+    border-bottom: 0;
+    border-radius: 999px 999px 0 0;
+    pointer-events: none;
+  }
+}
+
+// Пол: линия порога и световое пятно, которое проём бросает вперёд
+.hero__floor {
+  position: absolute;
+  top: 85%;
+  right: -8%;
+  left: -8%;
+  height: 15%;
+  background: radial-gradient(ellipse 42% 70% at 50% 0%, rgba(240, 226, 204, 0.2) 0%, rgba(212, 174, 126, 0.06) 55%, transparent 100%);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(243, 238, 230, 0.28) 30%, rgba(243, 238, 230, 0.28) 70%, transparent);
+  }
+}
+
+// Дверь стоит на пороге; верх ниже начала арки, чтобы углы фото не выходили за светлый проём
 .hero__door {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 15%;
+  right: 11%;
+  bottom: 0;
+  left: 11%;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    mix-blend-mode: multiply; // белый фон фото растворяется в нише
+    object-position: 50% 100%;
+    mix-blend-mode: multiply; // белый фон фото растворяется в проёме
   }
 }
 
@@ -411,16 +481,16 @@ onBeforeUnmount(() => {
 .hero__scale {
   position: absolute;
   left: 50%;
-  bottom: -2.25rem;
+  bottom: 2%;
   transform: translateX(-50%);
   white-space: nowrap;
+  color: var(--text-muted);
 }
 
 .hero__caption {
   display: grid;
   gap: var(--space-3);
   justify-items: center;
-  margin-top: var(--space-7); // место под подпись размера двери
   text-align: center;
 }
 
