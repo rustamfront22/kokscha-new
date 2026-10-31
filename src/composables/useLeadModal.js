@@ -5,12 +5,17 @@ import { reactive, readonly } from "vue";
 // сохранён как совместимый алиас (см. main.js).
 const state = reactive({
   open: false,
-  // Место, откуда открыли форму, — только для фокуса и текста; в CRM не уходит.
+  // Место, откуда открыли форму, — только для интерфейса; в CRM не уходит.
   origin: null,
+  // Необязательная сводка выбора (например, из конфигуратора): { title, lines: [] }.
+  // Показывается пользователю в форме. Формат запроса в CRM не меняется —
+  // для передачи сводки нужен согласованный с CRM параметр.
+  context: null,
 });
 
-export function openLeadModal(origin = null) {
+export function openLeadModal(origin = null, context = null) {
   state.origin = origin;
+  state.context = context;
   state.open = true;
 }
 

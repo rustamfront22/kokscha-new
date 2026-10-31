@@ -170,6 +170,16 @@ onUnmounted(() => {
         </p>
       </div>
 
+      <!-- Сводка выбора из конфигуратора / примерки. В CRM не передаётся (формат запроса прежний) -->
+      <div v-if="state.context" class="callback__context">
+        <p class="field__label">{{ t("Your selection") }}</p>
+        <p class="callback__context-title">{{ state.context.title }}</p>
+        <ul v-if="state.context.lines?.length">
+          <li v-for="line in state.context.lines" :key="line">{{ line }}</li>
+        </ul>
+        <p class="callback__context-hint">{{ t("Mention the model number when our manager calls you.") }}</p>
+      </div>
+
       <div v-if="isSuccess" class="callback__success" role="status" aria-live="polite">
         <span class="callback__success-icon"><UiIcon name="check" :size="28" /></span>
         <p class="h3">{{ t("The application has been sent") }}</p>
@@ -225,7 +235,7 @@ onUnmounted(() => {
   </BaseModal>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .callback-fab {
   position: fixed;
   right: max(var(--space-4), env(safe-area-inset-right));
@@ -288,6 +298,32 @@ onUnmounted(() => {
 .callback__form {
   display: grid;
   gap: var(--space-4);
+}
+
+.callback__context {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--c-linen);
+  border-left: 2px solid var(--c-oak);
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+}
+
+.callback__context-title {
+  font-weight: 600;
+}
+
+.callback__context-hint {
+  margin-top: var(--space-1);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
 }
 
 .callback__phone {

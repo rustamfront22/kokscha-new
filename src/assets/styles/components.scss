@@ -16,13 +16,13 @@
   min-height: var(--control-h);
   padding: 0 1.75rem;
   border: 1px solid var(--btn-border);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-pill);
   background: var(--btn-bg);
   color: var(--btn-fg);
   font-family: var(--font-sans);
   font-size: var(--fs-sm);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.01em;
   line-height: 1.2;
   text-align: center;
   white-space: nowrap;
@@ -157,6 +157,62 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
+}
+
+/* Кнопки на тёмной сцене: графитовые варианты меняются на светлые */
+.theme-dark {
+  .btn--primary,
+  .btn--accent {
+    --btn-bg: var(--c-oak-light);
+    --btn-fg: var(--c-graphite-deep);
+    --btn-border: var(--c-oak-light);
+
+    &:hover:not(:disabled) {
+      --btn-bg: #e2c296;
+      --btn-border: #e2c296;
+    }
+  }
+
+  .btn--outline {
+    --btn-fg: var(--c-ivory);
+    --btn-border: rgba(245, 241, 233, 0.32);
+
+    &:hover:not(:disabled) {
+      --btn-bg: var(--c-ivory);
+      --btn-fg: var(--c-graphite-deep);
+      --btn-border: var(--c-ivory);
+    }
+  }
+
+  .btn--ghost:hover:not(:disabled) {
+    --btn-bg: rgba(245, 241, 233, 0.08);
+  }
+
+  .chip {
+    color: var(--text);
+
+    &:hover {
+      border-color: var(--c-ivory);
+    }
+
+    &[aria-pressed="true"],
+    &.is-active {
+      background: var(--c-ivory);
+      border-color: var(--c-ivory);
+      color: var(--c-graphite-deep);
+    }
+  }
+
+  .select {
+    background-color: transparent;
+    color: var(--text);
+    border-color: var(--border-strong);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23f3eee6' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+
+    option {
+      color: var(--c-graphite);
+    }
+  }
 }
 
 /* ============ Чипы и теги ============ */

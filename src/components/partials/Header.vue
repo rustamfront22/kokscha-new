@@ -31,6 +31,9 @@ const menuOpen = ref(false);
 const drawer = ref(null);
 
 const overlay = computed(() => route.meta.overlayHeader && !scrolled.value && !menuOpen.value);
+// Главная — тёмный «шоурум»: после прокрутки шапка становится тёмным стеклом, а не светлой
+const darkGlass = computed(() => route.meta.overlayHeader && scrolled.value && !menuOpen.value);
+const onDark = computed(() => overlay.value || darkGlass.value);
 
 const onScroll = () => {
   scrolled.value = window.scrollY > 24;
@@ -64,7 +67,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <header class="header" :class="{ 'header--overlay': overlay, 'header--scrolled': scrolled || menuOpen }">
+  <header
+    class="header"
+    :class="{ 'header--overlay': overlay, 'header--dark': darkGlass, 'header--scrolled': scrolled || menuOpen }"
+  >
     <div class="container header__inner">
       <RouterLink :to="{ name: 'index' }" class="header__logo" :aria-label="t('Home')">
         <BrandLogo />
@@ -85,7 +91,7 @@ onBeforeUnmount(() => {
 
       <div class="header__tools">
         <ChangeLocale class="header__locale" />
-        <button class="btn btn--sm header__cta" :class="overlay ? 'btn--light' : 'btn--primary'" type="button" @click="requestCall">
+        <button class="btn btn--sm header__cta" :class="onDark ? 'btn--light' : 'btn--primary'" type="button" @click="requestCall">
           {{ t("Submit your application") }}
         </button>
         <button
@@ -177,6 +183,12 @@ onBeforeUnmount(() => {
   border-color: rgba(245, 241, 233, 0.16);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+}
+
+.header--dark {
+  color: var(--c-ivory);
+  background: rgba(22, 21, 19, 0.82);
+  border-color: rgba(245, 241, 233, 0.1);
 }
 
 .header__inner {

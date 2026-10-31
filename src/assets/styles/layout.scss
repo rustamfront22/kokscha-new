@@ -71,19 +71,30 @@
 }
 
 /* ---------- Типографика ---------- */
+.hero-title,
 .display,
 .h1,
 .h2,
 .h3 {
   font-family: var(--font-display);
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-weight: var(--fw-display);
+  letter-spacing: var(--tracking-display);
   text-wrap: balance;
+}
+
+.h3 {
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.hero-title {
+  font-size: var(--fs-hero);
+  line-height: 0.96;
 }
 
 .display {
   font-size: var(--fs-display);
-  line-height: var(--lh-tight);
+  line-height: 1;
 }
 
 .h1 {
@@ -107,11 +118,50 @@
   line-height: 1.35;
 }
 
+// Слово-акцент в заголовке: курсивная антиква поверх гротеска
+.hero-title em,
 .display em,
 .h1 em,
 .h2 em {
+  font-family: var(--font-accent);
   font-style: italic;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   color: var(--c-oak-deep); // крупный текст: контраст ≥ 3:1 на ivory
+}
+
+.theme-dark .hero-title em,
+.theme-dark .display em,
+.theme-dark .h1 em,
+.theme-dark .h2 em,
+.section--dark .h2 em {
+  color: var(--c-oak-light);
+}
+
+/* ---------- Тёмная сцена (главная) ---------- */
+.theme-dark {
+  --bg: var(--c-graphite-deep);
+  --surface: var(--c-graphite-raised);
+  --surface-alt: #1c1b18;
+  --text: var(--text-on-dark);
+  --text-muted: var(--text-on-dark-muted);
+  --border: rgba(243, 238, 230, 0.12);
+  --border-strong: rgba(243, 238, 230, 0.26);
+  --accent: var(--c-oak-light);
+  --accent-ink: var(--c-oak-light);
+  --focus-ring: var(--c-oak-light);
+
+  background: var(--bg);
+  color: var(--text);
+}
+
+// Моноширинная подпись-метка (номера шагов, счётчики)
+.label-mono {
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .eyebrow {

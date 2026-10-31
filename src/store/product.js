@@ -23,9 +23,9 @@ export const mapDoorToProduct = (item = {}) => {
         : CRM_ORIGIN + item.image
       : "",
     category: item.type || "doors",
-    // Историческое поле для store/cart.js: берётся из «fill», реальным остатком не является
-    // и в интерфейсе не выводится.
-    stock: item.fill ? parseInt(item.fill) : 0,
+    // Данных об остатках в CRM нет. Раньше сюда подставлялся «fill» (процент заполнения) —
+    // это не остаток, поэтому поле оставлено пустым (используется только неподключённым store/cart.js).
+    stock: null,
     type: item.type,
     style: item.style,
     color: item.color,
