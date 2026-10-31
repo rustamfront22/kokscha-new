@@ -28,5 +28,8 @@ loadLocales(locales)
       i18n.global.setLocaleMessage(elemsKey, elems[elemsKey]);
     }
     app.mount("#app");
+    // Сигнал стартовой заставке из index.html: приложение готово, можно открывать сайт
+    window.__appReady = true;
+    window.dispatchEvent(new Event("app:ready"));
   })
   .catch(console.error);

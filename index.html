@@ -27,8 +27,320 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500&family=Inter+Tight:wght@300;400;500&family=Manrope:wght@400;500;600;700&display=swap"
     />
+
+    <!--
+      Стартовая заставка. Лежит прямо в index.html, чтобы появиться мгновенно, ещё до загрузки JS.
+      Показывается один раз за сессию; при prefers-reduced-motion не показывается вовсе.
+    -->
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var seen = false;
+        try {
+          seen = sessionStorage.getItem("kokcha:intro") === "1";
+        } catch (e) {}
+        var reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        root.classList.add(seen || reduced ? "intro-off" : "intro-active");
+      })();
+    </script>
+    <style>
+      .intro {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2147483000;
+        display: grid;
+        place-items: center;
+        color: #f3eee6;
+        cursor: pointer;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      .intro-off .intro {
+        display: none;
+      }
+      html.intro-active,
+      html.intro-active body {
+        overflow: hidden;
+      }
+
+      /* Две «створки» фона — на выходе расходятся, как двери */
+      .intro__leaf {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 50.5%;
+        background: radial-gradient(ellipse 90% 70% at 100% 50%, #24211d 0%, #161513 70%);
+        transition: transform 1s cubic-bezier(0.77, 0, 0.18, 1);
+      }
+      .intro__leaf--l {
+        left: 0;
+      }
+      .intro__leaf--r {
+        right: 0;
+        transform-origin: right;
+        background: radial-gradient(ellipse 90% 70% at 0% 50%, #24211d 0%, #161513 70%);
+      }
+      .intro__seam {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 1px;
+        background: linear-gradient(180deg, transparent, rgba(212, 174, 126, 0.7), transparent);
+        transform: scaleY(0);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+
+      .intro__content {
+        position: relative;
+        display: grid;
+        justify-items: center;
+        gap: 22px;
+        transition:
+          opacity 0.45s ease,
+          transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      /* Пиктограмма двери: линии прорисовываются, затем из проёма идёт свет */
+      .intro__mark {
+        width: 96px;
+        height: 120px;
+        overflow: visible;
+      }
+      .intro__mark path {
+        fill: none;
+        stroke: #c9a36f;
+        stroke-width: 7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: intro-draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+      }
+      .intro__mark path:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+      .intro__mark path:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .intro__mark path:nth-child(4),
+      .intro__mark path:nth-child(5) {
+        animation-delay: 0.55s;
+        animation-duration: 0.5s;
+      }
+      .intro__handle {
+        fill: #c9a36f;
+        opacity: 0;
+        animation: intro-fade 0.4s ease 0.95s forwards;
+      }
+      .intro__light {
+        fill: url(#intro-glow);
+        opacity: 0;
+        animation: intro-fade 0.9s ease 1s forwards;
+      }
+      .intro__halo {
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        width: 280px;
+        height: 280px;
+        margin-left: -140px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(212, 174, 126, 0.22) 0%, rgba(212, 174, 126, 0) 65%);
+        opacity: 0;
+        animation: intro-fade 1.2s ease 0.9s forwards;
+        pointer-events: none;
+      }
+
+      .intro__word {
+        display: grid;
+        justify-items: center;
+        gap: 6px;
+        line-height: 1;
+      }
+      .intro__name {
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 58px;
+        font-weight: 600;
+        opacity: 0;
+        transform: translateY(12px);
+        animation: intro-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.75s forwards;
+      }
+      .intro__sub {
+        font-family: Manrope, Arial, sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.9em;
+        margin-right: -0.9em;
+        text-transform: uppercase;
+        color: rgba(243, 238, 230, 0.62);
+        opacity: 0;
+        animation: intro-track 1s cubic-bezier(0.22, 1, 0.36, 1) 0.95s forwards;
+      }
+      .intro__line {
+        width: 120px;
+        height: 1px;
+        margin-top: 6px;
+        background: linear-gradient(90deg, transparent, #c9a36f, transparent);
+        transform: scaleX(0);
+        animation: intro-line 0.9s cubic-bezier(0.65, 0, 0.35, 1) 1.1s forwards;
+      }
+
+      /* Выход: содержимое уходит, створки расходятся, сайт уже под ними */
+      .intro.is-leaving {
+        pointer-events: none;
+      }
+      .intro.is-leaving .intro__content {
+        opacity: 0;
+        transform: scale(1.06);
+      }
+      .intro.is-leaving .intro__seam {
+        animation: intro-seam 1.1s ease forwards;
+      }
+      .intro.is-leaving .intro__leaf--l {
+        transform: translateX(-101%);
+        transition-delay: 0.25s;
+      }
+      .intro.is-leaving .intro__leaf--r {
+        transform: translateX(101%);
+        transition-delay: 0.25s;
+      }
+
+      @keyframes intro-draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @keyframes intro-fade {
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes intro-rise {
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @keyframes intro-track {
+        from {
+          letter-spacing: 1.4em;
+          margin-right: -1.4em;
+        }
+        to {
+          opacity: 1;
+          letter-spacing: 0.9em;
+          margin-right: -0.9em;
+        }
+      }
+      @keyframes intro-seam {
+        25% {
+          opacity: 1;
+          transform: scaleY(1);
+        }
+        to {
+          opacity: 0;
+          transform: scaleY(1);
+        }
+      }
+      @keyframes intro-line {
+        to {
+          transform: scaleX(1);
+        }
+      }
+
+      /* Анимации первого экрана ждут, пока откроется заставка */
+      html.intro-active .hero__line,
+      html.intro-active .hero__lead,
+      html.intro-active .hero__actions,
+      html.intro-active .hero__stage {
+        animation-play-state: paused;
+      }
+
+      @media (max-width: 480px) {
+        .intro__mark {
+          width: 72px;
+          height: 90px;
+        }
+        .intro__name {
+          font-size: 44px;
+        }
+      }
+    </style>
   </head>
   <body>
+    <div class="intro" id="intro" aria-hidden="true">
+      <div class="intro__leaf intro__leaf--l"></div>
+      <div class="intro__leaf intro__leaf--r"></div>
+      <div class="intro__seam"></div>
+      <div class="intro__content">
+        <span class="intro__halo"></span>
+        <svg class="intro__mark" viewBox="0 0 160 200">
+          <defs>
+            <linearGradient id="intro-glow" x1="0" y1="0" x2="1" y2="0.2">
+              <stop offset="0" stop-color="#f3e3c4" stop-opacity="0.55" />
+              <stop offset="1" stop-color="#c9a36f" stop-opacity="0.08" />
+            </linearGradient>
+          </defs>
+          <polygon class="intro__light" points="80,22 142,40 142,196 80,176" />
+          <path pathLength="1" d="M46 6 L18 16 L18 176 L46 190" />
+          <path pathLength="1" d="M80 22 L80 176" />
+          <path pathLength="1" d="M80 22 L142 40 L142 196 L80 176" />
+          <path pathLength="1" d="M28 38 L28 66" />
+          <path pathLength="1" d="M28 122 L28 150" />
+          <circle class="intro__handle" cx="126" cy="122" r="5.5" />
+        </svg>
+        <div class="intro__word">
+          <span class="intro__name">Ko‘kcha</span>
+          <span class="intro__sub">Eshiklar</span>
+          <span class="intro__line"></span>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var el = document.getElementById("intro");
+        if (!el || !root.classList.contains("intro-active")) {
+          if (el) el.remove();
+          return;
+        }
+        var MIN_MS = 2100; // время, за которое успевает проиграться анимация логотипа
+        var MAX_MS = 6000; // страховка: не держать заставку, если приложение не загрузилось
+        var start = Date.now();
+        var done = false;
+
+        function finish() {
+          if (done) return;
+          done = true;
+          try {
+            sessionStorage.setItem("kokcha:intro", "1");
+          } catch (e) {}
+          el.classList.add("is-leaving");
+          root.classList.remove("intro-active"); // запускает анимации первого экрана под створками
+          setTimeout(function () {
+            el.remove();
+            root.classList.add("intro-off");
+          }, 1350);
+          removeEventListener("keydown", finish);
+        }
+
+        function whenReady() {
+          setTimeout(finish, Math.max(0, MIN_MS - (Date.now() - start)));
+        }
+
+        if (window.__appReady) whenReady();
+        else addEventListener("app:ready", whenReady, { once: true });
+        setTimeout(finish, MAX_MS);
+        // Пропуск по клику или любой клавише
+        el.addEventListener("click", finish);
+        addEventListener("keydown", finish);
+      })();
+    </script>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
